@@ -517,6 +517,12 @@ if (ISLE_BUILD_CONFIG)
   add_executable(config WIN32
     LEGO1/mxdirectx/mxdirectxinfo.cpp
     LEGO1/mxdirectx/legodxinfo.cpp
+    CONFIG/AboutDlg.h
+    CONFIG/config.h
+    CONFIG/ConfigCommandLineInfo.h
+    CONFIG/detectdx5.h
+    CONFIG/MainDlg.h
+    CONFIG/StdAfx.h
     CONFIG/config.cpp
     CONFIG/ConfigCommandLineInfo.cpp
     CONFIG/AboutDlg.cpp
