@@ -126,7 +126,7 @@ BOOL CConfigApp::WriteReg(const char* p_key, const char* p_value) const
 			HKEY_LOCAL_MACHINE,
 			"SOFTWARE\\Mindscape\\LEGO Island",
 			0,
-			"string",
+			LPSTR("string"),
 			0,
 			KEY_READ | KEY_WRITE,
 			NULL,
