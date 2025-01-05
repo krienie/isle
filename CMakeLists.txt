@@ -73,6 +73,12 @@ target_include_directories(DirectX5::DirectX5 INTERFACE "${PROJECT_SOURCE_DIR}/3
 if(ISLE_USE_DX5_LIBS)
   target_link_directories(DirectX5::DirectX5 INTERFACE "${PROJECT_SOURCE_DIR}/3rdparty/dx5/lib")
 endif()
+if (NOT MSVC_FOR_DECOMP)
+  configure_file(${PROJECT_SOURCE_DIR}/3rdparty/dx5/bin/d3drm.dll ${CMAKE_BINARY_DIR}/Debug/d3drm.dll COPYONLY)
+  configure_file(${PROJECT_SOURCE_DIR}/3rdparty/dx5/bin/d3drm.dll ${CMAKE_BINARY_DIR}/Release/d3drm.dll COPYONLY)
+  configure_file(${PROJECT_SOURCE_DIR}/3rdparty/dx5/bin/d3drm.dll ${CMAKE_BINARY_DIR}/RelWithDebInfo/d3drm.dll COPYONLY)
+  configure_file(${PROJECT_SOURCE_DIR}/3rdparty/dx5/bin/d3drm.dll ${CMAKE_BINARY_DIR}/MinSizeRel/d3drm.dll COPYONLY)
+endif()
 
 add_library(Smacker::Smacker STATIC IMPORTED)
 set_property(TARGET Smacker::Smacker PROPERTY IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/3rdparty/smacker/smack.lib")
