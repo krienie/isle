@@ -31,7 +31,7 @@ ON_COMMAND(IDC_RAD_PALETTE_16BIT, OnRadiobuttonPalette16bit)
 ON_COMMAND(IDC_RAD_PALETTE_256, OnRadiobuttonPalette256)
 ON_COMMAND(IDC_CHK_3D_VIDEO_MEMORY, OnCheckbox3DVideoMemory)
 ON_WM_DESTROY() // FIXME: CONFIG.EXE calls Default
-ON_COMMAND(IDABORT, OnButtonCancel)
+ON_COMMAND(IDOK, OnButtonOk)
 ON_COMMAND(IDC_CHK_3DSOUND, OnCheckbox3DSound)
 ON_COMMAND(IDC_RAD_MODEL_QUALITY_LOW, OnRadiobuttonModelLowQuality)
 ON_COMMAND(IDC_RAD_MODEL_QUALITY_HIGH, OnRadiobuttonModelHighQuality)
@@ -147,12 +147,6 @@ void CMainDialog::OnList3DevicesSelectionChanged()
 	UpdateInterface();
 }
 
-// FUNCTION: CONFIG 0x00404320
-void CMainDialog::OnCancel()
-{
-	CDialog::OnCancel();
-}
-
 // FUNCTION: CONFIG 0x00404330
 void CMainDialog::OnDestroy()
 {
@@ -160,12 +154,14 @@ void CMainDialog::OnDestroy()
 }
 
 // FUNCTION: CONFIG 0x00404340
-void CMainDialog::OnButtonCancel()
+void CMainDialog::OnButtonOk()
 {
-	if (m_modified) {
+	if (m_modified)
+	{
 		currentConfigApp->WriteRegisterSettings();
 	}
-	OnCancel();
+
+	OnOK();
 }
 
 // FUNCTION: CONFIG 0x00404360

@@ -32,9 +32,8 @@ protected:
 	void OnPaint();
 	HCURSOR OnQueryDragIcon();
 	void OnList3DevicesSelectionChanged();
-	void OnCancel();
 	void OnDestroy();
-	void OnButtonCancel();
+	void OnButtonOk();
 	void OnCheckbox3DSound();
 	void OnCheckbox3DVideoMemory();
 	void OnRadiobuttonPalette16bit();
