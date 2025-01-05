@@ -369,7 +369,7 @@ BOOL StartDirectSound()
 // FUNCTION: ISLE 0x401d20
 LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	NotificationId type;
+	NotificationId type = c_notificationType0;
 	unsigned char keyCode = 0;
 
 	if (!g_isle) {
