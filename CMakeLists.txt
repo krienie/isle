@@ -620,6 +620,12 @@ if (MSVC_FOR_DECOMP)
       set_property(TARGET config PROPERTY JOB_POOL_LINK "msvc_config")
     endif()
   endif()
+else()
+  if (ISLE_BUILD_APP)
+    target_link_options(isle PRIVATE "/SAFESEH:NO")
+  endif()
+
+  target_link_options(lego1 PRIVATE "/SAFESEH:NO")
 endif()
 
 find_program(CLANGFORMAT_BIN NAMES clang-format)
