@@ -9,11 +9,6 @@ AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 BracedInitializerIndentWidth: 4
-BraceWrapping:
-  AfterClass: false
-  AfterControlStatement: Never
-  AfterEnum: false
-  AfterStruct: false
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 EmptyLineBeforeAccessModifier: Always
