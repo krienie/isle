@@ -445,6 +445,7 @@ function(add_lego_libraries NAME)
     target_link_libraries(${tgt} PRIVATE ${ARG_LINK_LIBRARIES})
     target_link_libraries(${tgt} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
     target_compile_definitions(${tgt} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DIRECTX5_SDK>)
+    install(TARGETS ${tgt} DESTINATION .)
   endforeach()
 
   # Make sure filenames are ALL CAPS
@@ -502,6 +503,8 @@ if (ISLE_BUILD_APP)
   # Make sure filenames are ALL CAPS
   set_property(TARGET isle PROPERTY OUTPUT_NAME ISLE)
   set_property(TARGET isle PROPERTY SUFFIX ".EXE")
+
+  install(TARGETS isle DESTINATION .)
 endif()
 
 if (ISLE_BUILD_CONFIG)
@@ -527,6 +530,8 @@ if (ISLE_BUILD_CONFIG)
   set_property(TARGET config PROPERTY OUTPUT_NAME "CONFIG")
   set_property(TARGET config PROPERTY SUFFIX ".EXE")
   set_property(TARGET config PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
+
+  install(TARGETS config DESTINATION .)
 endif()
 
 if (MSVC)

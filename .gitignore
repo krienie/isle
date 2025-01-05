@@ -16,6 +16,7 @@ env.bak/
 venv.bak/
 /build/
 /build_debug/
+/install
 /legobin/
 *.swp
 LEGO1PROGRESS.*
