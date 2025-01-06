@@ -28,8 +28,10 @@ CConfigApp g_theApp;
 
 #define MiB (1024 * 1024)
 
+//TODO(KL): Place all config I/O in a shared file somewhere
 namespace
 {
+//NOTE(KL): Keep in sync with isleapp.cpp
 const std::string SettingsIniFile = "Settings.ini";
 
 fs::path GetConfigFilePath()

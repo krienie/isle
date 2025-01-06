@@ -510,6 +510,7 @@ if (ISLE_BUILD_APP)
 
   # Link DSOUND, WINMM, and LEGO1
   target_link_libraries(isle PRIVATE dsound winmm lego1)
+  target_link_libraries(isle PRIVATE ddraw dxguid inifile-cpp::inifile-cpp)
 
   # Make sure filenames are ALL CAPS
   set_property(TARGET isle PROPERTY OUTPUT_NAME ISLE)

@@ -29,6 +29,29 @@
 #include "viewmanager/viewmanager.h"
 
 #include <dsound.h>
+#include <inifile-cpp/inicpp.h>
+
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+//TODO(KL): Place all config I/O in a shared file somewhere
+namespace
+{
+//NOTE(KL): Keep in sync with config.cpp
+const std::string SettingsIniFile = "Settings.ini";
+
+fs::path GetConfigFilePath()
+{
+	char FilePath[MAX_PATH];
+	if (GetModuleFileNameA(nullptr, FilePath, sizeof(FilePath)))
+	{
+		return fs::path(FilePath).parent_path() / SettingsIniFile;
+	}
+
+	return fs::current_path() / SettingsIniFile;
+}
+}
 
 DECOMP_SIZE_ASSERT(IsleApp, 0x8c)
 
@@ -757,48 +780,114 @@ void IsleApp::LoadConfig()
 	strcpy(m_cdPath, buffer);
 	MxOmni::SetCD(m_cdPath);
 
-	ReadRegBool("Flip Surfaces", &m_flipSurfaces);
-	ReadRegBool("Full Screen", &m_fullScreen);
-	ReadRegBool("Wide View Angle", &m_wideViewAngle);
-	ReadRegBool("3DSound", &m_use3dSound);
-	ReadRegBool("Music", &m_useMusic);
-	ReadRegBool("UseJoystick", &m_useJoystick);
-	ReadRegInt("JoystickIndex", &m_joystickIndex);
-	ReadRegBool("Draw Cursor", &m_drawCursor);
-
-	int backBuffersInVRAM;
-	if (ReadRegBool("Back Buffers in Video RAM", &backBuffersInVRAM)) {
-		m_backBuffersInVram = !backBuffersInVRAM;
-	}
-
-	int bitDepth;
-	if (ReadRegInt("Display Bit Depth", &bitDepth)) {
-		if (bitDepth == 8) {
-			m_using8bit = TRUE;
-		}
-		else if (bitDepth == 16) {
-			m_using16bit = TRUE;
-		}
-	}
-
-	if (!ReadReg("Island Quality", buffer, sizeof(buffer))) {
-		strcpy(buffer, "1");
-	}
-	m_islandQuality = atoi(buffer);
-
-	if (!ReadReg("Island Texture", buffer, sizeof(buffer))) {
-		strcpy(buffer, "1");
-	}
-	m_islandTexture = atoi(buffer);
-
-	if (ReadReg("3D Device ID", buffer, sizeof(buffer))) {
-		m_deviceId = new char[strlen(buffer) + 1];
-		strcpy(m_deviceId, buffer);
-	}
-
 	if (ReadReg("savepath", buffer, sizeof(buffer))) {
 		m_savePath = new char[strlen(buffer) + 1];
 		strcpy(m_savePath, buffer);
+	}
+
+	if (fs::exists(GetConfigFilePath()))
+	{
+		ini::IniFile IniFile;
+		IniFile.load(GetConfigFilePath().string());
+
+		auto &GeneralSettings = IniFile["General"];
+
+		auto ReadEntry = [&GeneralSettings]<typename T>(const std::string &EntryName, T* OutValue)
+		{
+			if (GeneralSettings.contains(EntryName))
+			{
+				*OutValue = GeneralSettings[EntryName].as<T>();
+				return true;
+			}
+
+			return false;
+		};
+
+		std::string DeviceId;
+		if (ReadEntry("DeviceID", &DeviceId))
+		{
+			m_deviceId = new char[DeviceId.size()];
+			strcpy(m_deviceId, DeviceId.c_str());
+		}
+		
+		ReadEntry("FlipSurfaces", &m_flipSurfaces);
+		ReadEntry("FullScreen", &m_fullScreen);
+		ReadEntry("WideViewAngle", &m_wideViewAngle);
+		ReadEntry("Sound3D", &m_use3dSound);
+		ReadEntry("Music", &m_useMusic);
+		ReadEntry("UseJoystick", &m_useJoystick);
+		ReadEntry("JoystickIndex", &m_joystickIndex);
+		ReadEntry("DrawCursor", &m_drawCursor);
+
+		int backBuffersInVRAM;
+		if (ReadEntry("WriteVideoRAM", &backBuffersInVRAM))
+		{
+			m_backBuffersInVram = !backBuffersInVRAM;
+		}
+
+		int bitDepth;
+		if (ReadEntry("DisplayBitDepth", &bitDepth))
+		{
+			if (bitDepth == 8) {
+				m_using8bit = TRUE;
+			}
+			else if (bitDepth == 16) {
+				m_using16bit = TRUE;
+			}
+		}
+
+		if (!ReadEntry("ModelQuality", &m_islandQuality))
+		{
+			m_islandQuality = 1;
+		}
+
+		if (!ReadEntry("TextureQuality", &m_islandTexture))
+		{
+			m_islandTexture = 1;
+		}
+	}
+	else
+	{
+		// Try the registry as a backup
+
+		ReadRegBool("Flip Surfaces", &m_flipSurfaces);
+		ReadRegBool("Full Screen", &m_fullScreen);
+		ReadRegBool("Wide View Angle", &m_wideViewAngle);
+		ReadRegBool("3DSound", &m_use3dSound);
+		ReadRegBool("Music", &m_useMusic);
+		ReadRegBool("UseJoystick", &m_useJoystick);
+		ReadRegInt("JoystickIndex", &m_joystickIndex);
+		ReadRegBool("Draw Cursor", &m_drawCursor);
+
+		int backBuffersInVRAM;
+		if (ReadRegBool("Back Buffers in Video RAM", &backBuffersInVRAM)) {
+			m_backBuffersInVram = !backBuffersInVRAM;
+		}
+
+		int bitDepth;
+		if (ReadRegInt("Display Bit Depth", &bitDepth)) {
+			if (bitDepth == 8) {
+				m_using8bit = TRUE;
+			}
+			else if (bitDepth == 16) {
+				m_using16bit = TRUE;
+			}
+		}
+
+		if (!ReadReg("Island Quality", buffer, sizeof(buffer))) {
+			strcpy(buffer, "1");
+		}
+		m_islandQuality = atoi(buffer);
+
+		if (!ReadReg("Island Texture", buffer, sizeof(buffer))) {
+			strcpy(buffer, "1");
+		}
+		m_islandTexture = atoi(buffer);
+
+		if (ReadReg("3D Device ID", buffer, sizeof(buffer))) {
+			m_deviceId = new char[strlen(buffer) + 1];
+			strcpy(m_deviceId, buffer);
+		}
 	}
 }
 
