@@ -94,6 +94,9 @@ set_property(TARGET SmartHeap::SmartHeap PROPERTY IMPORTED_LOCATION "${PROJECT_S
 set_property(TARGET SmartHeap::SmartHeap PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/3rdparty/smartheap")
 set_property(TARGET SmartHeap::SmartHeap PROPERTY INTERFACE_COMPILE_OPTIONS "/FI${PROJECT_SOURCE_DIR}/3rdparty/smartheap/SMRTHEAP.HPP")
 
+add_library(inifile-cpp::inifile-cpp INTERFACE IMPORTED)
+target_include_directories(inifile-cpp::inifile-cpp INTERFACE "${PROJECT_SOURCE_DIR}/3rdparty/inifile-cpp/include")
+
 function(add_lego_libraries NAME)
   cmake_parse_arguments(ARG "" "SUFFIX;OUT_TARGETS;DLL_OUTPUT_NAME;DLL_PREFIX;DLL_SUFFIX" "LINK_LIBRARIES" ${ARGN})
 
@@ -521,12 +524,10 @@ if (ISLE_BUILD_CONFIG)
     LEGO1/mxdirectx/legodxinfo.cpp
     CONFIG/AboutDlg.h
     CONFIG/config.h
-    CONFIG/ConfigCommandLineInfo.h
     CONFIG/detectdx5.h
     CONFIG/MainDlg.h
     CONFIG/StdAfx.h
     CONFIG/config.cpp
-    CONFIG/ConfigCommandLineInfo.cpp
     CONFIG/AboutDlg.cpp
     CONFIG/MainDlg.cpp
     CONFIG/detectdx5.cpp
@@ -540,7 +541,7 @@ if (ISLE_BUILD_CONFIG)
     target_link_libraries(config PRIVATE DirectX5::DirectX5)
   endif()
   target_compile_definitions(config PRIVATE DIRECT3D_VERSION=0x500)
-  target_link_libraries(config PRIVATE ddraw dxguid)
+  target_link_libraries(config PRIVATE ddraw dxguid inifile-cpp::inifile-cpp)
   set_property(TARGET config PROPERTY OUTPUT_NAME "CONFIG")
   set_property(TARGET config PROPERTY SUFFIX ".EXE")
   set_property(TARGET config PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)

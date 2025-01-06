@@ -6,6 +6,10 @@
 
 #include <mxdirectx/legodxinfo.h>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 DECOMP_SIZE_ASSERT(CDialog, 0x60)
 DECOMP_SIZE_ASSERT(CMainDialog, 0x70)
 
@@ -59,7 +63,7 @@ BOOL CMainDialog::OnInitDialog()
 	SendMessage(WM_SETICON, ICON_SMALL, (LPARAM) m_icon);
 	LegoDeviceEnumerate* enumerator = currentConfigApp->m_device_enumerator;
 	enumerator->FUN_1009d210();
-	m_modified = currentConfigApp->ReadRegisterSettings();
+	m_modified = currentConfigApp->LoadConfig();
 	CWnd* list_3d_devices = GetDlgItem(IDC_LIST_3DDEVICES);
 	int driver_i = 0;
 	int device_i = 0;
@@ -158,7 +162,7 @@ void CMainDialog::OnButtonOk()
 {
 	if (m_modified)
 	{
-		currentConfigApp->WriteRegisterSettings();
+		currentConfigApp->SaveConfig();
 	}
 
 	OnOK();
