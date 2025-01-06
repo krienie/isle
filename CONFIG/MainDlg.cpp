@@ -45,6 +45,7 @@ ON_COMMAND(IDC_CHK_JOYSTICK, OnCheckboxJoystick)
 ON_COMMAND(IDC_BTN_ADVANCED, OnButtonAdvanced)
 ON_COMMAND(IDC_CHK_DRAW_CURSOR, OnCheckboxDrawCursor)
 ON_COMMAND(IDC_CHK_MUSIC, OnCheckboxMusic)
+ON_COMMAND(IDC_CHK_FULLSCREEN, OnCheckboxFullScreen)
 END_MESSAGE_MAP()
 
 // FUNCTION: CONFIG 0x00403e80
@@ -186,18 +187,11 @@ void CMainDialog::UpdateInterface()
 		currentConfigApp->m_draw_cursor = FALSE;
 		GetDlgItem(IDC_CHK_DRAW_CURSOR)->EnableWindow(FALSE);
 	}
-	if (full_screen) {
-		CheckRadioButton(
-			IDC_RAD_PALETTE_256,
-			IDC_RAD_PALETTE_16BIT,
-			currentConfigApp->m_display_bit_depth == 8 ? IDC_RAD_PALETTE_256 : IDC_RAD_PALETTE_16BIT
-		);
-	}
-	else {
-		CheckDlgButton(IDC_RAD_PALETTE_256, 0);
-		CheckDlgButton(IDC_RAD_PALETTE_16BIT, 0);
-		currentConfigApp->m_display_bit_depth = 0;
-	}
+	CheckRadioButton(
+		IDC_RAD_PALETTE_256,
+		IDC_RAD_PALETTE_16BIT,
+		currentConfigApp->m_display_bit_depth == 8 ? IDC_RAD_PALETTE_256 : IDC_RAD_PALETTE_16BIT
+	);
 	GetDlgItem(IDC_RAD_PALETTE_256)
 		->EnableWindow(full_screen && currentConfigApp->GetConditionalDeviceRenderBitDepth());
 	GetDlgItem(IDC_RAD_PALETTE_16BIT)->EnableWindow(full_screen && currentConfigApp->GetDeviceRenderBitStatus());
@@ -218,6 +212,7 @@ void CMainDialog::UpdateInterface()
 	);
 	CheckDlgButton(IDC_CHK_JOYSTICK, currentConfigApp->m_use_joystick);
 	CheckDlgButton(IDC_CHK_MUSIC, currentConfigApp->m_music);
+	CheckDlgButton(IDC_CHK_FULLSCREEN, currentConfigApp->m_full_screen);
 }
 
 // FUNCTION: CONFIG 0x004045e0
@@ -257,6 +252,11 @@ void CMainDialog::OnCheckboxFlipVideoMemPages()
 {
 	currentConfigApp->m_flip_surfaces = IsDlgButtonChecked(IDC_CHK_FLIP_VIDEO_MEM_PAGES);
 	m_modified = TRUE;
+
+	if (currentConfigApp->m_full_screen && !currentConfigApp->m_flip_surfaces)
+	{
+		currentConfigApp->m_full_screen = FALSE;
+	}
 	UpdateInterface();
 }
 
@@ -342,5 +342,18 @@ void CMainDialog::OnCheckboxMusic()
 {
 	currentConfigApp->m_music = IsDlgButtonChecked(IDC_CHK_MUSIC);
 	m_modified = TRUE;
+	UpdateInterface();
+}
+
+void CMainDialog::OnCheckboxFullScreen()
+{
+	currentConfigApp->m_full_screen = IsDlgButtonChecked(IDC_CHK_FULLSCREEN);
+	m_modified = TRUE;
+
+	if (currentConfigApp->m_flip_surfaces && !currentConfigApp->m_full_screen)
+	{
+		currentConfigApp->m_flip_surfaces = FALSE;
+	}
+
 	UpdateInterface();
 }

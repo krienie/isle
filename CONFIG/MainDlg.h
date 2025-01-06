@@ -47,6 +47,7 @@ protected:
 	void OnButtonAdvanced();
 	void OnCheckboxDrawCursor();
 	void OnCheckboxMusic();
+	void OnCheckboxFullScreen();
 
 	DECLARE_MESSAGE_MAP()
 };
