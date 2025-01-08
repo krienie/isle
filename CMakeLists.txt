@@ -108,323 +108,127 @@ function(add_lego_libraries NAME)
   set(list_targets )
 
   set(SUFFIX "${ARG_SUFFIX}")
-
-  add_library(tglrl${ARG_SUFFIX} STATIC
-    LEGO1/tgl/d3drm/renderer.cpp
-    LEGO1/tgl/d3drm/texture.cpp
-    LEGO1/tgl/d3drm/view.cpp
-    LEGO1/tgl/d3drm/device.cpp
-    LEGO1/tgl/d3drm/group.cpp
-    LEGO1/tgl/d3drm/camera.cpp
-    LEGO1/tgl/d3drm/light.cpp
-    LEGO1/tgl/d3drm/meshbuilder.cpp
-    LEGO1/tgl/d3drm/mesh.cpp
-  )
+  
+  file(GLOB_RECURSE tglrlSrc
+        "LEGO1/tgl/*.cpp"
+        "LEGO1/tgl/*.h")
+  add_library(tglrl${ARG_SUFFIX} STATIC ${tglrlSrc})
   list(APPEND list_targets tglrl${ARG_SUFFIX})
   set_property(TARGET tglrl${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "tglrl40$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(tglrl${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(tglrl${ARG_SUFFIX} PRIVATE d3drm)
 
-  add_library(realtime${ARG_SUFFIX} STATIC
-    LEGO1/realtime/orientableroi.cpp
-    LEGO1/realtime/realtime.cpp
-    LEGO1/realtime/realtimeview.cpp
-  )
+  file(GLOB_RECURSE realtimeSrc
+        "LEGO1/realtime/*.cpp"
+        "LEGO1/realtime/*.h")
+  add_library(realtime${ARG_SUFFIX} STATIC ${realtimeSrc})
   list(APPEND list_targets realtime${ARG_SUFFIX})
   set_property(TARGET realtime${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "realtime$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(realtime${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(realtime${ARG_SUFFIX} PRIVATE Vec::Vec)
 
-  add_library(viewmanager${ARG_SUFFIX} STATIC
-    LEGO1/viewmanager/viewlod.cpp
-    LEGO1/viewmanager/viewmanager.cpp
-    LEGO1/viewmanager/viewlodlist.cpp
-    LEGO1/viewmanager/viewroi.cpp
-  )
+  file(GLOB_RECURSE viewmanagerSrc
+        "LEGO1/viewmanager/*.cpp"
+        "LEGO1/viewmanager/*.h")
+  add_library(viewmanager${ARG_SUFFIX} STATIC ${viewmanagerSrc})
   list(APPEND list_targets viewmanager${ARG_SUFFIX})
   set_property(TARGET viewmanager${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "viewmanager$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(viewmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(viewmanager${ARG_SUFFIX} PRIVATE Vec::Vec)
 
-  add_library(mxdirectx${ARG_SUFFIX} STATIC
-    LEGO1/mxdirectx/mxdirect3d.cpp
-    LEGO1/mxdirectx/mxdirectxinfo.cpp
-    LEGO1/mxdirectx/legodxinfo.cpp
-    LEGO1/mxdirectx/mxdirectdraw.cpp
-  )
+  file(GLOB_RECURSE mxdirectxSrc
+        "LEGO1/mxdirectx/*.cpp"
+        "LEGO1/mxdirectx/*.h")
+  add_library(mxdirectx${ARG_SUFFIX} STATIC ${mxdirectxSrc})
   list(APPEND list_targets mxdirectx${ARG_SUFFIX})
   set_property(TARGET mxdirectx${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "MxDirectX$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(mxdirectx${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(mxdirectx${ARG_SUFFIX} PRIVATE ddraw)
 
-  add_library(roi${ARG_SUFFIX} STATIC
-    LEGO1/lego/sources/roi/legoroi.cpp
-    LEGO1/lego/sources/roi/legolod.cpp
-  )
+  file(GLOB_RECURSE roiSrc
+        "LEGO1/lego/sources/roi/*.cpp"
+        "LEGO1/lego/sources/roi/*.h")
+  add_library(roi${ARG_SUFFIX} STATIC ${roiSrc})
   list(APPEND list_targets roi${ARG_SUFFIX})
   set_property(TARGET roi${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "roi$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(roi${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(roi${ARG_SUFFIX} PRIVATE viewmanager${ARG_SUFFIX} Vec::Vec)
 
-  add_library(geom${ARG_SUFFIX} STATIC
-    LEGO1/lego/sources/geom/legoedge.cpp
-    LEGO1/lego/sources/geom/legoweedge.cpp
-    LEGO1/lego/sources/geom/legounkown100db7f4.cpp
-    LEGO1/lego/sources/geom/legowegedge.cpp
-  )
+  file(GLOB_RECURSE geomSrc
+        "LEGO1/lego/sources/geom/*.cpp"
+        "LEGO1/lego/sources/geom/*.h")
+  add_library(geom${ARG_SUFFIX} STATIC ${geomSrc})
   list(APPEND list_targets geom${ARG_SUFFIX})
   set_property(TARGET geom${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "geom$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(geom${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(geom${ARG_SUFFIX} PRIVATE)
 
-  add_library(shape${ARG_SUFFIX} STATIC
-    LEGO1/lego/sources/shape/legobox.cpp
-    LEGO1/lego/sources/shape/legosphere.cpp
-    LEGO1/lego/sources/shape/legovertex.cpp
-    LEGO1/lego/sources/shape/legomesh.cpp
-    LEGO1/lego/sources/shape/legocolor.cpp
-  )
+  file(GLOB_RECURSE shapeSrc
+        "LEGO1/lego/sources/shape/*.cpp"
+        "LEGO1/lego/sources/shape/*.h")
+  add_library(shape${ARG_SUFFIX} STATIC ${shapeSrc})
   list(APPEND list_targets shape${ARG_SUFFIX})
   set_property(TARGET shape${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "shape$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(shape${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(shape${ARG_SUFFIX} PRIVATE)
 
-  add_library(anim${ARG_SUFFIX} STATIC
-    LEGO1/lego/sources/anim/legoanim.cpp
-  )
+  file(GLOB_RECURSE animSrc
+        "LEGO1/lego/sources/anim/*.cpp"
+        "LEGO1/lego/sources/anim/*.h")
+  add_library(anim${ARG_SUFFIX} STATIC ${animSrc})
   list(APPEND list_targets anim${ARG_SUFFIX})
   set_property(TARGET anim${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "anim$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(anim${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
 
-  add_library(misc${ARG_SUFFIX} STATIC
-    LEGO1/lego/sources/misc/legotexture.cpp
-    LEGO1/lego/sources/misc/legostorage.cpp
-    LEGO1/lego/sources/misc/legoimage.cpp
-    LEGO1/lego/sources/misc/legocontainer.cpp
-    LEGO1/lego/sources/misc/legotree.cpp
-    LEGO1/lego/sources/misc/legounknown.cpp
-  )
+  file(GLOB_RECURSE miscSrc
+        "LEGO1/lego/sources/misc/*.cpp"
+        "LEGO1/lego/sources/misc/*.h")
+  add_library(misc${ARG_SUFFIX} STATIC ${miscSrc})
   list(APPEND list_targets misc${ARG_SUFFIX})
   set_property(TARGET misc${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "misc$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(misc${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(misc${ARG_SUFFIX} PRIVATE)
 
-  add_library(3dmanager${ARG_SUFFIX} STATIC
-    LEGO1/lego/sources/3dmanager/lego3dview.cpp
-    LEGO1/lego/sources/3dmanager/lego3dview.h
-    LEGO1/lego/sources/3dmanager/lego3dmanager.cpp
-    LEGO1/lego/sources/3dmanager/lego3dmanager.h
-    LEGO1/lego/sources/3dmanager/legoview1.cpp
-    LEGO1/lego/sources/3dmanager/legoview1.h
-    LEGO1/lego/sources/3dmanager/tglsurface.cpp
-    LEGO1/lego/sources/3dmanager/tglsurface.h
-  )
+  file(GLOB_RECURSE 3dmanagerSrc
+        "LEGO1/lego/sources/3dmanager/*.cpp"
+        "LEGO1/lego/sources/3dmanager/*.h")
+  add_library(3dmanager${ARG_SUFFIX} STATIC ${3dmanagerSrc})
   list(APPEND list_targets 3dmanager${ARG_SUFFIX})
   set_property(TARGET 3dmanager${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "3dmanager$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(3dmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(3dmanager${ARG_SUFFIX} PRIVATE Vec::Vec)
 
-  add_library(omni${ARG_SUFFIX} STATIC
-    LEGO1/omni/src/notify/mxnotificationmanager.cpp
-    LEGO1/omni/src/common/mxdebug.cpp
-    LEGO1/omni/src/common/mxmisc.cpp
-    LEGO1/omni/src/common/mxatom.cpp
-    LEGO1/omni/src/action/mxdsaction.cpp
-    LEGO1/omni/src/common/mxtimer.cpp
-    LEGO1/omni/src/common/mxcore.cpp
-    LEGO1/omni/src/common/mxstring.cpp
-    LEGO1/omni/src/audio/mxsoundmanager.cpp
-    LEGO1/omni/src/main/mxomni.cpp
-    LEGO1/omni/src/notify/mxactionnotificationparam.cpp
-    LEGO1/omni/src/main/mxomnicreateflags.cpp
-    LEGO1/omni/src/main/mxomnicreateparam.cpp
-    LEGO1/omni/src/common/mxobjectfactory.cpp
-    LEGO1/omni/src/audio/mxsoundpresenter.cpp
-    LEGO1/omni/src/audio/mxwavepresenter.cpp
-    LEGO1/omni/src/video/mxvideopresenter.cpp
-    LEGO1/omni/src/video/mxflcpresenter.cpp
-    LEGO1/omni/src/video/mxsmkpresenter.cpp
-    LEGO1/omni/src/video/mxloopingflcpresenter.cpp
-    LEGO1/omni/src/video/mxloopingsmkpresenter.cpp
-    LEGO1/omni/src/common/mxpresenter.cpp
-    LEGO1/omni/src/common/mxmediapresenter.cpp
-    LEGO1/omni/src/common/mxcompositepresenter.cpp
-    LEGO1/omni/src/system/mxcriticalsection.cpp
-    LEGO1/omni/src/common/mxutilities.cpp
-    LEGO1/omni/src/common/mxvariabletable.cpp
-    LEGO1/omni/src/stream/mxdssubscriber.cpp
-    LEGO1/omni/src/common/mxmediamanager.cpp
-    LEGO1/omni/src/system/mxticklethread.cpp
-    LEGO1/omni/src/audio/mxaudiomanager.cpp
-    LEGO1/omni/src/system/mxautolock.cpp
-    LEGO1/omni/src/stream/mxstreamer.cpp
-    LEGO1/omni/src/video/mxstillpresenter.cpp
-    LEGO1/omni/src/video/mxdisplaysurface.cpp
-    LEGO1/omni/src/video/mxbitmap.cpp
-    LEGO1/omni/src/video/flic.cpp
-    LEGO1/omni/src/common/mxticklemanager.cpp
-    LEGO1/omni/src/stream/mxdschunk.cpp
-    LEGO1/omni/src/video/mxvideomanager.cpp
-    LEGO1/omni/src/video/mxvideoparamflags.cpp
-    LEGO1/omni/src/video/mxvideoparam.cpp
-    LEGO1/omni/src/video/mxpalette.cpp
-    LEGO1/omni/src/system/mxscheduler.cpp
-    LEGO1/omni/src/system/mxthread.cpp
-    LEGO1/omni/src/action/mxdsobject.cpp
-    LEGO1/omni/src/event/mxeventmanager.cpp
-    LEGO1/omni/src/audio/mxmusicmanager.cpp
-    LEGO1/omni/src/stream/mxstreamcontroller.cpp
-    LEGO1/omni/src/audio/mxmusicpresenter.cpp
-    LEGO1/omni/src/audio/mxmidipresenter.cpp
-    LEGO1/omni/src/audio/mxloopingmidipresenter.cpp
-    LEGO1/omni/src/event/mxeventpresenter.cpp
-    LEGO1/omni/src/stream/mxstreamchunk.cpp
-    LEGO1/omni/src/video/mxregioncursor.cpp
-    LEGO1/omni/src/video/mxregion.cpp
-    LEGO1/omni/src/video/mxsmk.cpp
-    LEGO1/omni/src/stream/mxramstreamcontroller.cpp
-    LEGO1/omni/src/stream/mxdsbuffer.cpp
-    LEGO1/omni/src/stream/mxdiskstreamcontroller.cpp
-    LEGO1/omni/src/system/mxsemaphore.cpp
-    LEGO1/omni/src/action/mxdsobjectaction.cpp
-    LEGO1/omni/src/action/mxdsmediaaction.cpp
-    LEGO1/omni/src/action/mxdsanim.cpp
-    LEGO1/omni/src/action/mxdssound.cpp
-    LEGO1/omni/src/action/mxdsevent.cpp
-    LEGO1/omni/src/action/mxdsstill.cpp
-    LEGO1/omni/src/action/mxdsmultiaction.cpp
-    LEGO1/omni/src/action/mxdsserialaction.cpp
-    LEGO1/omni/src/action/mxdsparallelaction.cpp
-    LEGO1/omni/src/action/mxdsselectaction.cpp
-    LEGO1/omni/src/stream/mxdsfile.cpp
-    LEGO1/omni/src/stream/mxio.cpp
-    LEGO1/omni/src/action/mxdsstreamingaction.cpp
-    LEGO1/omni/src/stream/mxramstreamprovider.cpp
-    LEGO1/omni/src/stream/mxdiskstreamprovider.cpp
-  )
+  file(GLOB_RECURSE omniSrc "LEGO1/omni/*.cpp")
+  file(GLOB_RECURSE omniInc "LEGO1/omni/*.h")
+  add_library(omni${ARG_SUFFIX} STATIC ${omniSrc} ${omniInc})
   list(APPEND list_targets omni${ARG_SUFFIX})
   set_property(TARGET omni${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "omni$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(omni${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(omni${ARG_SUFFIX} PRIVATE dsound winmm Smacker::Smacker)
+  if(MSVC)
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/omni/src" PREFIX "Source Files" FILES ${omniSrc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" PREFIX "Header Files" FILES ${omniInc})
+  else()
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/omni" FILES ${omniSrc} ${omniInc})
+  endif()
 
-  add_library(${NAME} SHARED
-    LEGO1/lego/legoomni/src/worlds/score.cpp
-    LEGO1/lego/legoomni/src/actors/helicopter.cpp
-    LEGO1/lego/legoomni/src/worlds/gasstation.cpp
-    LEGO1/lego/legoomni/src/audio/legocachsound.cpp
-    LEGO1/lego/legoomni/src/common/legoobjectfactory.cpp
-    LEGO1/lego/legoomni/src/actors/skateboard.cpp
-    LEGO1/lego/legoomni/src/entity/legoentity.cpp
-    LEGO1/lego/legoomni/src/audio/lego3dsound.cpp
-    LEGO1/lego/legoomni/src/entity/legocameracontroller.cpp
-    LEGO1/lego/legoomni/src/race/legoracers.cpp
-    LEGO1/lego/legoomni/src/race/legoraceactor.cpp
-    LEGO1/lego/legoomni/src/common/legostate.cpp
-    LEGO1/lego/legoomni/src/actors/buildingentity.cpp
-    LEGO1/lego/legoomni/src/actors/buildings.cpp
-    LEGO1/lego/legoomni/src/common/misc.cpp
-    LEGO1/lego/legoomni/src/race/legorace.cpp
-    LEGO1/lego/legoomni/src/race/jetskirace.cpp
-    LEGO1/lego/legoomni/src/race/carrace.cpp
-    LEGO1/lego/legoomni/src/actors/pizzeria.cpp
-    LEGO1/lego/legoomni/src/worlds/elevatorbottom.cpp
-    LEGO1/lego/legoomni/src/audio/legoloadcachesoundpresenter.cpp
-    LEGO1/lego/legoomni/src/actors/act2genactor.cpp
-    LEGO1/lego/legoomni/src/actors/act2actor.cpp
-    LEGO1/lego/legoomni/src/actors/islepathactor.cpp
-    LEGO1/lego/legoomni/src/paths/legopathstruct.cpp
-    LEGO1/lego/legoomni/src/paths/legoanimactor.cpp
-    LEGO1/lego/legoomni/src/entity/legoworld.cpp
-    LEGO1/lego/legoomni/src/build/legocarbuild.cpp
-    LEGO1/lego/legoomni/src/actors/ambulance.cpp
-    LEGO1/lego/legoomni/src/common/legoplantmanager.cpp
-    LEGO1/lego/legoomni/src/actors/bumpbouy.cpp
-    LEGO1/modeldb/modeldb.cpp
-    LEGO1/lego/legoomni/src/actors/pizza.cpp
-    LEGO1/lego/legoomni/src/actors/racecar.cpp
-    LEGO1/lego/legoomni/src/control/legocontrolmanager.cpp
-    LEGO1/lego/legoomni/src/audio/legosoundmanager.cpp
-    LEGO1/lego/legoomni/src/paths/legoextraactor.cpp
-    LEGO1/lego/legoomni/src/actors/isleactor.cpp
-    LEGO1/lego/legoomni/src/actors/radio.cpp
-    LEGO1/lego/legoomni/src/entity/legoactor.cpp
-    LEGO1/lego/legoomni/src/paths/legopathactor.cpp
-    LEGO1/lego/legoomni/src/common/legobuildingmanager.cpp
-    LEGO1/lego/legoomni/src/worlds/isle.cpp
-    LEGO1/lego/legoomni/src/actors/motorcycle.cpp
-    LEGO1/lego/legoomni/src/actors/act3ammo.cpp
-    LEGO1/lego/legoomni/src/audio/legocachesoundmanager.cpp
-    LEGO1/lego/legoomni/src/worlds/infocenterdoor.cpp
-    LEGO1/lego/legoomni/src/common/legogamestate.cpp
-    LEGO1/lego/legoomni/src/common/legobackgroundcolor.cpp
-    LEGO1/lego/legoomni/src/common/legofullscreenmovie.cpp
-    LEGO1/lego/legoomni/src/common/legoutils.cpp
-    LEGO1/lego/legoomni/src/actors/act3actors.cpp
-    LEGO1/lego/legoomni/src/control/legometerpresenter.cpp
-    LEGO1/lego/legoomni/src/common/legoactioncontrolpresenter.cpp
-    LEGO1/lego/legoomni/src/common/mxcontrolpresenter.cpp
-    LEGO1/lego/legoomni/src/paths/legopathpresenter.cpp
-    LEGO1/lego/legoomni/src/common/legophoneme.cpp
-    LEGO1/lego/legoomni/src/paths/legopathcontroller.cpp
-    LEGO1/lego/legoomni/src/entity/legojetskiraceactor.cpp
-    LEGO1/lego/legoomni/src/audio/lego3dwavepresenter.cpp
-    LEGO1/lego/legoomni/src/common/legoanimmmpresenter.cpp
-    LEGO1/lego/legoomni/src/common/mxtransitionmanager.cpp
-    LEGO1/lego/legoomni/src/actors/towtrack.cpp
-    LEGO1/lego/legoomni/src/entity/act2policestation.cpp
-    LEGO1/lego/legoomni/src/video/legophonemepresenter.cpp
-    LEGO1/lego/legoomni/src/video/legotexturepresenter.cpp
-    LEGO1/lego/legoomni/src/worlds/legoact2.cpp
-    LEGO1/lego/legoomni/src/common/legovariables.cpp
-    LEGO1/lego/legoomni/src/main/scripts.cpp
-    LEGO1/lego/legoomni/src/entity/legoentitypresenter.cpp
-    LEGO1/lego/legoomni/src/entity/legonavcontroller.cpp
-    LEGO1/lego/legoomni/src/paths/legopathboundary.cpp
-    LEGO1/lego/legoomni/src/main/legomain.cpp
-    LEGO1/lego/legoomni/src/input/legoinputmanager.cpp
-    LEGO1/lego/legoomni/src/race/legoracemap.cpp
-    LEGO1/lego/legoomni/src/worlds/jukebox.cpp
-    LEGO1/lego/legoomni/src/video/legoflctexturepresenter.cpp
-    LEGO1/lego/legoomni/src/worlds/police.cpp
-    LEGO1/lego/legoomni/src/common/legoanimationmanager.cpp
-    LEGO1/lego/legoomni/src/build/legocarbuildpresenter.cpp
-    LEGO1/lego/legoomni/src/entity/legopovcontroller.cpp
-    LEGO1/lego/legoomni/src/common/legotextureinfo.cpp
-    LEGO1/lego/legoomni/src/actors/doors.cpp
-    LEGO1/lego/legoomni/src/entity/legoworldpresenter.cpp
-    LEGO1/lego/legoomni/src/actors/dunebuggy.cpp
-    LEGO1/lego/legoomni/src/video/legoanimpresenter.cpp
-    LEGO1/lego/legoomni/src/video/legoloopinganimpresenter.cpp
-    LEGO1/lego/legoomni/src/video/legolocomotionanimpresenter.cpp
-    LEGO1/lego/legoomni/src/video/legohideanimpresenter.cpp
-    LEGO1/lego/legoomni/src/worlds/infocenter.cpp
-    LEGO1/lego/legoomni/src/race/raceskel.cpp
-    LEGO1/lego/legoomni/src/worlds/act3.cpp
-    LEGO1/lego/legoomni/src/video/legomodelpresenter.cpp
-    LEGO1/lego/legoomni/src/common/mxcompositemediapresenter.cpp
-    LEGO1/lego/legoomni/src/worlds/hospital.cpp
-    LEGO1/lego/legoomni/src/actors/bike.cpp
-    LEGO1/lego/legoomni/src/entity/legoactorpresenter.cpp
-    LEGO1/lego/legoomni/src/worlds/registrationbook.cpp
-    LEGO1/lego/legoomni/src/video/legopalettepresenter.cpp
-    LEGO1/lego/legoomni/src/entity/act2brick.cpp
-    LEGO1/lego/legoomni/src/video/legovideomanager.cpp
-    LEGO1/lego/legoomni/src/video/legopartpresenter.cpp
-    LEGO1/lego/legoomni/src/actors/jetski.cpp
-    LEGO1/lego/legoomni/src/audio/mxbackgroundaudiomanager.cpp
-    LEGO1/lego/legoomni/src/race/legoracespecial.cpp
-    LEGO1/lego/legoomni/src/worlds/historybook.cpp
-    LEGO1/lego/legoomni/src/common/legocharactermanager.cpp
-    LEGO1/lego/legoomni/src/actors/jukeboxentity.cpp
+  file(GLOB_RECURSE legoSrc "LEGO1/lego/legoomni/*.cpp")
+  file(GLOB_RECURSE legoInc "LEGO1/lego/legoomni/*.h")
+  set(legoAdditionalSrc
     LEGO1/main.cpp
-    # We need to get rid of / refactor the below units into existing/other ones
-    LEGO1/lego/legoomni/src/entity/legolocations.cpp
-    LEGO1/lego/legoomni/src/notify/legoeventnotificationparam.cpp
-    LEGO1/lego/legoomni/src/common/legoactors.cpp
+    LEGO1/modeldb/modeldb.cpp
+    LEGO1/modeldb/modeldb.h
     LEGO1/define.cpp
-    LEGO1/lego/legoomni/src/common/legoplants.cpp
-  )
+    LEGO1/define.h)
+  add_library(${NAME} SHARED ${legoSrc} ${legoInc} ${legoAdditionalSrc})
   list(APPEND list_targets ${NAME})
+  
+  if(MSVC)
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/lego/legoomni/src" PREFIX "Source Files" FILES ${legoSrc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/lego/legoomni/include" PREFIX "Header Files" FILES ${legoInc})
+  else()
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/lego/legoomni" FILES ${omniSrc} ${omniInc})
+  endif()
 
   if (MINGW)
     target_compile_definitions(${NAME} PRIVATE DIRECTINPUT_VERSION=0x0500)
@@ -505,10 +309,13 @@ if(ISLE_BUILD_BETA10)
 endif()
 
 if (ISLE_BUILD_APP)
-  add_executable(isle WIN32
-    ISLE/res/isle.rc
-    ISLE/isleapp.cpp
-  )
+  set(isleSrc ISLE/isleapp.cpp)
+  set(isleInc ISLE/isleapp.h ISLE/res/resource.h)
+  set(isleRes ISLE/res/isle.rc)
+  source_group(TREE "${PROJECT_SOURCE_DIR}/ISLE" PREFIX "Source Files" FILES ${isleSrc})
+  source_group(TREE "${PROJECT_SOURCE_DIR}/ISLE" PREFIX "Header Files" FILES ${isleInc})
+  source_group(TREE "${PROJECT_SOURCE_DIR}/ISLE/res" PREFIX "Resource Files" FILES ${isleRes})
+  add_executable(isle WIN32 ${isleSrc} ${isleInc} ${isleRes})
   reccmp_add_target(isle ID ISLE)
 
   target_compile_definitions(isle PRIVATE ISLE_APP)
@@ -536,21 +343,16 @@ if (ISLE_BUILD_APP)
 endif()
 
 if (ISLE_BUILD_CONFIG)
+  file(GLOB_RECURSE configSrc "CONFIG/*.cpp")
+  file(GLOB_RECURSE configInc "CONFIG/*.h")
+  file(GLOB_RECURSE configRes "CONFIG/*.rc")
+  source_group(TREE "${PROJECT_SOURCE_DIR}/CONFIG" PREFIX "Source Files" FILES ${configSrc})
+  source_group(TREE "${PROJECT_SOURCE_DIR}/CONFIG" PREFIX "Header Files" FILES ${configInc})
+  source_group(TREE "${PROJECT_SOURCE_DIR}/CONFIG/res" PREFIX "Resource Files" FILES ${configRes})
   add_executable(config WIN32
     LEGO1/mxdirectx/mxdirectxinfo.cpp
     LEGO1/mxdirectx/legodxinfo.cpp
-    CONFIG/AboutDlg.h
-    CONFIG/config.h
-    CONFIG/detectdx5.h
-    CONFIG/MainDlg.h
-    CONFIG/StdAfx.h
-    CONFIG/config.cpp
-    CONFIG/AboutDlg.cpp
-    CONFIG/MainDlg.cpp
-    CONFIG/detectdx5.cpp
-    CONFIG/StdAfx.cpp
-    CONFIG/res/config.rc
-  )
+    ${configSrc} ${configInc} ${configRes})
   reccmp_add_target(config ID CONFIG)
   target_compile_definitions(config PRIVATE _AFXDLL MXDIRECTX_FOR_CONFIG)
   target_include_directories(config PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/util" "${CMAKE_CURRENT_SOURCE_DIR}/LEGO1")
