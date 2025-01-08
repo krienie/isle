@@ -206,9 +206,13 @@ function(add_lego_libraries NAME)
 
   add_library(3dmanager${ARG_SUFFIX} STATIC
     LEGO1/lego/sources/3dmanager/lego3dview.cpp
+    LEGO1/lego/sources/3dmanager/lego3dview.h
     LEGO1/lego/sources/3dmanager/lego3dmanager.cpp
+    LEGO1/lego/sources/3dmanager/lego3dmanager.h
     LEGO1/lego/sources/3dmanager/legoview1.cpp
+    LEGO1/lego/sources/3dmanager/legoview1.h
     LEGO1/lego/sources/3dmanager/tglsurface.cpp
+    LEGO1/lego/sources/3dmanager/tglsurface.h
   )
   list(APPEND list_targets 3dmanager${ARG_SUFFIX})
   set_property(TARGET 3dmanager${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "3dmanager$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
