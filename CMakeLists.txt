@@ -12,6 +12,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/cmake/reccmp.cmake")
 
 set(CMAKE_CXX_STANDARD 20)
 
+set(BUILD_FOR_MODERN_OS FALSE CACHE BOOL "Compile the game to run on a modern OS. Will use Vulkan and SDL instead of DirectX5 and DirectDraw.")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 option(ENABLE_CLANG_TIDY "Enable clang-tidy")
 if (ENABLE_CLANG_TIDY)
@@ -20,14 +22,16 @@ if (ENABLE_CLANG_TIDY)
   set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_BIN}")
 endif()
 
-math(EXPR bits "8 * ${CMAKE_SIZEOF_VOID_P}")
-message(STATUS "Building ${bits}-bit LEGO Island")
-if (NOT bits EQUAL 32)
-  message(WARNING "Only 32-bit executables are supported")
+if (NOT BUILD_FOR_MODERN_OS)
+  math(EXPR bits "8 * ${CMAKE_SIZEOF_VOID_P}")
+  message(STATUS "Building ${bits}-bit LEGO Island")
+  if (NOT bits EQUAL 32 AND NOT BUILD_FOR_MODERN_OS)
+    message(WARNING "Only 32-bit executables are supported. Set BUILD_FOR_MODERN_OS to TRUE to enable 64-bit builds.")
+  endif()
 endif()
 
 set(MSVC_FOR_DECOMP FALSE)
-if (MSVC)
+if (MSVC AND ${BUILD_FOR_MODERN_OS})
   # Visual C++ 4.2 -> cl version 10.2.0
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "11.0")
     set(MSVC_FOR_DECOMP TRUE)
@@ -61,9 +65,11 @@ message(STATUS "MSVC for decompilation: ${MSVC_FOR_DECOMP}")
 
 option(ISLE_WERROR "Treat warnings as errors" OFF)
 option(ISLE_BUILD_APP "Build ISLE.EXE application" ON)
-cmake_dependent_option(ISLE_BUILD_CONFIG "Build CONFIG.EXE application" ON "NOT MINGW" OFF)
+cmake_dependent_option(ISLE_BUILD_CONFIG "Build CONFIG.EXE application" ON "NOT MINGW AND NOT BUILD_FOR_MODERN_OS" OFF)
 option(ISLE_USE_SMARTHEAP "Build LEGO1.DLL with SmartHeap" ${MSVC_FOR_DECOMP})
 option(ISLE_USE_DX5 "Build with internal DirectX 5 SDK" ON)
+#TODO(KL): Make DX5 dependent on NOT BUILD_FOR_MODERN_OS when the code is ready for it
+#cmake_dependent_option(ISLE_USE_DX5 "Build with internal DirectX 5 SDK" ON "NOT BUILD_FOR_MODERN_OS" OFF)
 option(ISLE_DECOMP_ASSERT "Assert struct size" ${MSVC_FOR_DECOMP})
 cmake_dependent_option(ISLE_USE_DX5_LIBS "Build with internal DirectX 5 SDK Libraries" ON ISLE_USE_DX5 OFF)
 option(ISLE_BUILD_LEGO1 "Build LEGO1.DLL library" ON)
@@ -102,6 +108,15 @@ set_property(TARGET SmartHeap::SmartHeap PROPERTY INTERFACE_COMPILE_OPTIONS "/FI
 add_library(inifile-cpp::inifile-cpp INTERFACE IMPORTED)
 target_include_directories(inifile-cpp::inifile-cpp INTERFACE "${PROJECT_SOURCE_DIR}/3rdparty/inifile-cpp/include")
 
+if (BUILD_FOR_MODERN_OS)
+  # Expects env VULKAN_SDK to be set and SDL2 installed with it
+  find_package(Vulkan REQUIRED)
+
+  list(APPEND CMAKE_PREFIX_PATH "$ENV{VULKAN_SDK}/cmake")
+  find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
+  find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main)
+endif()
+
 function(add_lego_libraries NAME)
   cmake_parse_arguments(ARG "" "SUFFIX;OUT_TARGETS;DLL_OUTPUT_NAME;DLL_PREFIX;DLL_SUFFIX" "LINK_LIBRARIES" ${ARGN})
 
@@ -136,6 +151,7 @@ function(add_lego_libraries NAME)
   target_include_directories(viewmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(viewmanager${ARG_SUFFIX} PRIVATE Vec::Vec)
 
+  #TODO(KL): Make Vulkan version of this for BUILD_FOR_MODERN_OS
   file(GLOB_RECURSE mxdirectxSrc
         "LEGO1/mxdirectx/*.cpp"
         "LEGO1/mxdirectx/*.h")
@@ -143,7 +159,7 @@ function(add_lego_libraries NAME)
   list(APPEND list_targets mxdirectx${ARG_SUFFIX})
   set_property(TARGET mxdirectx${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "MxDirectX$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(mxdirectx${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
-  target_link_libraries(mxdirectx${ARG_SUFFIX} PRIVATE ddraw)
+  target_link_libraries(mxdirectx${ARG_SUFFIX} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:ddraw>)
 
   file(GLOB_RECURSE roiSrc
         "LEGO1/lego/sources/roi/*.cpp"
@@ -269,6 +285,9 @@ function(add_lego_libraries NAME)
     target_link_libraries(${tgt} PRIVATE ${ARG_LINK_LIBRARIES})
     target_link_libraries(${tgt} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
     target_compile_definitions(${tgt} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DIRECTX5_SDK>)
+    if (BUILD_FOR_MODERN_OS)
+      target_compile_definitions(${tgt} PRIVATE "BUILD_FOR_MODERN_OS")
+    endif()
     install(TARGETS ${tgt} DESTINATION .)
   endforeach()
 
@@ -320,11 +339,19 @@ if (ISLE_BUILD_APP)
 
   target_compile_definitions(isle PRIVATE ISLE_APP)
 
+  if (BUILD_FOR_MODERN_OS)
+    target_compile_definitions(isle PRIVATE "BUILD_FOR_MODERN_OS")
+  endif()
+
   # Use internal DirectX 5 if required
   target_link_libraries(isle PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
 
   if (ISLE_USE_SMARTHEAP)
     target_link_libraries(isle PRIVATE SmartHeap::SmartHeap)
+  endif()
+
+  if (BUILD_FOR_MODERN_OS)
+    target_link_libraries(isle PRIVATE )
   endif()
 
   # Link DSOUND, WINMM, and LEGO1
@@ -357,13 +384,17 @@ if (ISLE_BUILD_CONFIG)
   target_compile_definitions(config PRIVATE _AFXDLL MXDIRECTX_FOR_CONFIG)
   target_include_directories(config PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/util" "${CMAKE_CURRENT_SOURCE_DIR}/LEGO1")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14)
-    target_link_libraries(config PRIVATE DirectX5::DirectX5)
+    target_link_libraries(config PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
   endif()
   target_compile_definitions(config PRIVATE DIRECT3D_VERSION=0x500)
-  target_link_libraries(config PRIVATE ddraw dxguid inifile-cpp::inifile-cpp)
+  target_link_libraries(config PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:ddraw> dxguid inifile-cpp::inifile-cpp)
   set_property(TARGET config PROPERTY OUTPUT_NAME "CONFIG")
   set_property(TARGET config PROPERTY SUFFIX ".EXE")
   set_property(TARGET config PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
+
+  if (BUILD_FOR_MODERN_OS)
+    target_compile_definitions(config PRIVATE "BUILD_FOR_MODERN_OS")
+  endif()
 
   install(TARGETS config DESTINATION .)
 endif()

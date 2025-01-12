@@ -201,6 +201,7 @@ int LegoDeviceEnumerate::FUN_1009d0d0()
 // FUNCTION: BETA10 0x1011cf54
 int LegoDeviceEnumerate::SupportsMMX()
 {
+#ifndef BUILD_FOR_MODERN_OS
 	if (!SupportsCPUID()) {
 		return 0;
 	}
@@ -238,6 +239,9 @@ int LegoDeviceEnumerate::SupportsMMX()
 	);
 #endif
 	return supports_mmx;
+#else
+	return false;
+#endif
 }
 
 // FUNCTION: CONFIG 0x00402970
