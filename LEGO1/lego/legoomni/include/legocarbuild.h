@@ -15,6 +15,7 @@ class MxSoundPresenter;
 class MxActionNotificationParam;
 
 // VTABLE: LEGO1 0x100d66e0
+// VTABLE: BETA10 0x101bb910
 // SIZE 0x50
 class LegoVehicleBuildState : public LegoState {
 public:
@@ -32,16 +33,16 @@ public:
 	// FUNCTION: LEGO1 0x10025ff0
 	const char* ClassName() const override // vtable+0x0c
 	{
-		return this->m_className.GetData();
+		return m_className.GetData();
 	}
 
 	// FUNCTION: LEGO1 0x10026000
 	MxBool IsA(const char* p_name) const override // vtable+0x10
 	{
-		return !strcmp(p_name, this->m_className.GetData()) || LegoState::IsA(p_name);
+		return !strcmp(p_name, m_className.GetData()) || LegoState::IsA(p_name);
 	}
 
-	MxResult Serialize(LegoFile* p_file) override; // vtable+0x1c
+	MxResult Serialize(LegoStorage* p_storage) override; // vtable+0x1c
 
 	// SYNTHETIC: LEGO1 0x100260a0
 	// LegoVehicleBuildState::`scalar deleting destructor'
@@ -56,7 +57,7 @@ public:
 	MxString m_className; // 0x38
 
 	AnimationState m_animationState; // 0x48
-	undefined m_unk0x4c;             // 0x4c
+	MxU8 m_unk0x4c;                  // 0x4c
 	MxBool m_unk0x4d;                // 0x4d
 	MxBool m_unk0x4e;                // 0x4e
 	MxU8 m_placedPartCount;          // 0x4f
@@ -91,6 +92,10 @@ public:
 	LegoCarBuild();
 	~LegoCarBuild() override;
 
+	// FUNCTION: LEGO1 0x10022930
+	// FUNCTION: BETA10 0x10070070
+	MxBool VTable0x5c() override { return TRUE; } // vtable+0x5c
+
 	// FUNCTION: LEGO1 0x10022940
 	// FUNCTION: BETA10 0x10070090
 	const char* ClassName() const override // vtable+0x0c
@@ -110,7 +115,6 @@ public:
 
 	MxResult Create(MxDSAction& p_dsAction) override;                  // vtable+0x18
 	void ReadyWorld() override;                                        // vtable+0x50
-	MxBool VTable0x5c() override;                                      // vtable+0x5c
 	MxBool Escape() override;                                          // vtable+0x64
 	void Enable(MxBool p_enable) override;                             // vtable+0x68
 	virtual void VTable0x6c();                                         // vtable+0x6c

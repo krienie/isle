@@ -3,7 +3,6 @@
 #include "anim/legoanim.h"
 #include "legocachesoundmanager.h"
 #include "legolocomotionanimpresenter.h"
-#include "legopathboundary.h"
 #include "legosoundmanager.h"
 #include "legoworld.h"
 #include "misc.h"
@@ -423,7 +422,7 @@ MxS32 LegoExtraActor::VTable0x68(Vector3& p_point1, Vector3& p_point2, Vector3& 
 }
 
 // FUNCTION: LEGO1 0x1002b980
-MxU32 LegoExtraActor::VTable0x6c(
+inline MxU32 LegoExtraActor::VTable0x6c(
 	LegoPathBoundary* p_boundary,
 	Vector3& p_v1,
 	Vector3& p_v2,

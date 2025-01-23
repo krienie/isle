@@ -5,11 +5,10 @@
 #include "geom/legounkown100db7f4.h"
 #include "legopathactor.h"
 #include "legopathboundary.h"
-#include "mxcore.h"
+#include "legopathstruct.h"
 #include "mxstl/stlcompat.h"
 
 class LegoAnimPresenter;
-class LegoPathStruct;
 class LegoWorld;
 class MxAtomId;
 class Vector3;
@@ -137,6 +136,9 @@ public:
 		LegoPathBoundary*& p_boundary,
 		MxFloat& p_param5
 	);
+
+	// FUNCTION: BETA10 0x100e0160
+	MxBool ActorExists(LegoPathActor* p_actor) { return m_actors.find(p_actor) == m_actors.end() ? FALSE : TRUE; }
 
 	static MxResult Init();
 	static MxResult Reset();
