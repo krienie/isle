@@ -68,16 +68,16 @@ option(ISLE_BUILD_APP "Build ISLE.EXE application" ON)
 cmake_dependent_option(ISLE_BUILD_CONFIG "Build CONFIG.EXE application" ON "NOT MINGW AND NOT BUILD_FOR_MODERN_OS" OFF)
 option(ISLE_USE_SMARTHEAP "Build LEGO1.DLL with SmartHeap" ${MSVC_FOR_DECOMP})
 option(ISLE_USE_DX5 "Build with internal DirectX 5 SDK" ON)
-#TODO(KL): Make DX5 dependent on NOT BUILD_FOR_MODERN_OS when the code is ready for it
-#cmake_dependent_option(ISLE_USE_DX5 "Build with internal DirectX 5 SDK" ON "NOT BUILD_FOR_MODERN_OS" OFF)
+cmake_dependent_option(ISLE_USE_DX5 "Build with internal DirectX 5 SDK" ON "NOT BUILD_FOR_MODERN_OS" OFF)
 option(ISLE_DECOMP_ASSERT "Assert struct size" ${MSVC_FOR_DECOMP})
 cmake_dependent_option(ISLE_USE_DX5_LIBS "Build with internal DirectX 5 SDK Libraries" ON ISLE_USE_DX5 OFF)
 option(ISLE_BUILD_LEGO1 "Build LEGO1.DLL library" ON)
 option(ISLE_BUILD_BETA10 "Build BETA10.DLL library" OFF)
 
-if(NOT (ISLE_BUILD_LEGO1 OR ISLE_BUILD_BETA10))
-  message(FATAL_ERROR "ISLE_BUILD_LEGO1 AND ISLE_BUILD_BETA10 cannot be both disabled")
-endif()
+#TODO(KL): Temporarily disabled
+#if(NOT (ISLE_BUILD_LEGO1 OR ISLE_BUILD_BETA10))
+#  message(FATAL_ERROR "ISLE_BUILD_LEGO1 AND ISLE_BUILD_BETA10 cannot be both disabled")
+#endif()
 
 add_cxx_warning(parentheses)
 
@@ -113,8 +113,7 @@ if (BUILD_FOR_MODERN_OS)
   find_package(Vulkan REQUIRED)
 
   list(APPEND CMAKE_PREFIX_PATH "$ENV{VULKAN_SDK}/cmake")
-  find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
-  find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main)
+  find_package(SDL2 REQUIRED)
 endif()
 
 function(add_lego_libraries NAME)
@@ -328,8 +327,14 @@ if(ISLE_BUILD_BETA10)
 endif()
 
 if (ISLE_BUILD_APP)
+if (BUILD_FOR_MODERN_OS)
+  set(isleSrc ISLE/isleapp64.cpp)
+  set(isleInc ISLE/isleapp64.h)
+else()
   set(isleSrc ISLE/isleapp.cpp)
-  set(isleInc ISLE/isleapp.h ISLE/res/resource.h)
+  set(isleInc ISLE/isleapp.h)
+endif()
+  set(isleInc ${isleInc} ISLE/res/resource.h)
   set(isleRes ISLE/res/isle.rc)
   source_group(TREE "${PROJECT_SOURCE_DIR}/ISLE" PREFIX "Source Files" FILES ${isleSrc})
   source_group(TREE "${PROJECT_SOURCE_DIR}/ISLE" PREFIX "Header Files" FILES ${isleInc})
@@ -341,21 +346,27 @@ if (ISLE_BUILD_APP)
 
   if (BUILD_FOR_MODERN_OS)
     target_compile_definitions(isle PRIVATE "BUILD_FOR_MODERN_OS")
-  endif()
+    target_link_libraries(isle PRIVATE SDL2 SDL2main Vulkan-1)
+    target_link_directories(isle PRIVATE ${SDL2_LIBDIR})
+    #TODO(KL): Clean this up a bit. I'm sure there is a cleaner way to do this. Vulkan includes are included in SDL2_INCLUDE_DIRS now..
+    target_include_directories(isle PRIVATE ${Vulkan_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS})
 
-  # Use internal DirectX 5 if required
-  target_link_libraries(isle PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
+    #TODO(KL): Temporary include till this can be removed
+    target_include_directories(isle PRIVATE "${PROJECT_SOURCE_DIR}/3rdparty/dx5/inc")
+  else()
+    # Use internal DirectX 5 if required
+    target_link_libraries(isle PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
+
+    # Link DSOUND, WINMM, and LEGO1
+    target_link_libraries(isle PRIVATE dsound winmm)
+  endif()
 
   if (ISLE_USE_SMARTHEAP)
     target_link_libraries(isle PRIVATE SmartHeap::SmartHeap)
   endif()
 
-  if (BUILD_FOR_MODERN_OS)
-    target_link_libraries(isle PRIVATE )
-  endif()
-
   # Link DSOUND, WINMM, and LEGO1
-  target_link_libraries(isle PRIVATE dsound winmm inifile-cpp::inifile-cpp)
+  target_link_libraries(isle PRIVATE inifile-cpp::inifile-cpp)
   if(ISLE_BUILD_LEGO1)
     target_link_libraries(isle PRIVATE lego1)
   else()
@@ -496,7 +507,9 @@ else()
     target_link_options(isle PRIVATE "/SAFESEH:NO")
   endif()
 
-  target_link_options(lego1 PRIVATE "/SAFESEH:NO")
+  if (NOT BUILD_FOR_MODERN_OS)
+    target_link_options(lego1 PRIVATE "/SAFESEH:NO")
+  endif()
 endif()
 
 find_program(CLANGFORMAT_BIN NAMES clang-format)

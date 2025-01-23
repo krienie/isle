@@ -108,7 +108,9 @@ void LegoInputManager::Destroy()
 // FUNCTION: BETA10 0x10088f6e
 void LegoInputManager::CreateAndAcquireKeyboard(HWND p_hwnd)
 {
-	HINSTANCE hinstance = (HINSTANCE) GetWindowLong(p_hwnd, GWL_HINSTANCE);
+	//TODO(KL): Use SDL2
+	HINSTANCE hinstance = (HINSTANCE) GetWindowLong(p_hwnd, 0);
+	//HINSTANCE hinstance = (HINSTANCE) GetWindowLong(p_hwnd, GWL_HINSTANCE);
 
 	// 0x500 for DX5
 	if (DirectInputCreate(hinstance, 0x500, &m_directInput, NULL) == DI_OK) {
