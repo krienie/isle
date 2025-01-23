@@ -35,7 +35,6 @@ public:
 
 	void LoadConfig();
 	void Tick(BOOL sleepIfNotNextFrame);
-	void SetupCursor(WPARAM wParam);
 
 	SDL_Window* GetWindowHandle() const { return m_windowHandle; }
 	MxLong GetFrameDelta() const { return m_frameDelta; }

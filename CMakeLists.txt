@@ -298,20 +298,117 @@ function(add_lego_libraries NAME)
   set(${ARG_OUT_TARGETS} ${list_targets} PARENT_SCOPE)
 endfunction()
 
+function(add_lego64_libraries NAME)
+  cmake_parse_arguments(ARG "" "SUFFIX;OUT_TARGETS;DLL_OUTPUT_NAME;DLL_PREFIX;DLL_SUFFIX" "LINK_LIBRARIES" ${ARGN})
+
+  set(list_targets )
+
+  set(SUFFIX "${ARG_SUFFIX}")
+
+  file(GLOB_RECURSE mxvulkanSrc
+        "LEGO64/mxvulkan/*.cpp"
+        "LEGO64/mxvulkan/*.h")
+  add_library(mxvulkan STATIC ${mxvulkanSrc})
+  list(APPEND list_targets mxvulkan)
+  set_property(TARGET mxvulkan PROPERTY ARCHIVE_OUTPUT_NAME "MxVulkan$<$<CONFIG:Debug>:d>")
+  target_include_directories(mxvulkan PRIVATE "${PROJECT_SOURCE_DIR}/LEGO64" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(mxvulkan PRIVATE ${Vulkan_INCLUDE_DIRS})
+  target_link_libraries(mxvulkan PRIVATE Vulkan-1)
+
+  file(GLOB_RECURSE realtimeSrc
+      "LEGO1/realtime/*.cpp"
+      "LEGO1/realtime/*.h")
+  add_library(realtime${ARG_SUFFIX} STATIC ${realtimeSrc})
+  list(APPEND list_targets realtime${ARG_SUFFIX})
+  set_property(TARGET realtime${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "realtime$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
+  target_include_directories(realtime${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+  target_link_libraries(realtime${ARG_SUFFIX} PRIVATE Vec::Vec)
+
+  file(GLOB_RECURSE omniSrc "LEGO64/omni/*.cpp")
+  file(GLOB_RECURSE omniInc "LEGO64/omni/*.h")
+  add_library(omni${ARG_SUFFIX} STATIC ${omniSrc} ${omniInc})
+  list(APPEND list_targets omni${ARG_SUFFIX})
+  set_property(TARGET omni${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "omni$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
+  target_include_directories(omni${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO64/omni/include" "${PROJECT_SOURCE_DIR}/LEGO64" "${PROJECT_SOURCE_DIR}/util")
+  target_link_libraries(omni${ARG_SUFFIX} PRIVATE dsound winmm)
+  if(MSVC)
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/omni/src" PREFIX "Source Files" FILES ${omniSrc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/omni/include" PREFIX "Header Files" FILES ${omniInc})
+  else()
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/omni" FILES ${omniSrc} ${omniInc})
+  endif()
+
+  file(GLOB_RECURSE legoSrc "LEGO64/lego/legoomni/*.cpp")
+  file(GLOB_RECURSE legoInc "LEGO64/lego/legoomni/*.h")
+  set(legoAdditionalSrc
+    LEGO64/main.cpp
+    LEGO64/modeldb/modeldb.cpp
+    LEGO64/modeldb/modeldb.h
+    LEGO64/define.cpp
+    LEGO64/define.h)
+  add_library(${NAME} STATIC ${legoSrc} ${legoInc} ${legoAdditionalSrc})
+  list(APPEND list_targets ${NAME})
+  
+  if(MSVC)
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/src" PREFIX "Source Files" FILES ${legoSrc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/include" PREFIX "Header Files" FILES ${legoInc})
+  else()
+    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni" FILES ${omniSrc} ${omniInc})
+  endif()
+
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/omni/include")
+  #target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/sources")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/include")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/include/actions")
+
+  # Link libraries
+  target_link_libraries(${NAME} PRIVATE
+    realtime${ARG_SUFFIX}
+    omni${ARG_SUFFIX}
+    Vec::Vec
+    mxvulkan
+  )
+
+  foreach(tgt IN LISTS list_targets)
+    target_link_libraries(${tgt} PRIVATE ${ARG_LINK_LIBRARIES})
+      target_compile_definitions(${tgt} PRIVATE "BUILD_FOR_MODERN_OS")
+    install(TARGETS ${tgt} DESTINATION .)
+  endforeach()
+
+  # Make sure filenames are ALL CAPS
+  set_property(TARGET ${NAME} PROPERTY OUTPUT_NAME "${ARG_DLL_OUTPUT_NAME}")
+  set_property(TARGET ${NAME} PROPERTY PREFIX "${ARG_DLL_PREFIX}")
+  set_property(TARGET ${NAME} PROPERTY SUFFIX "${ARG_DLL_SUFFIX}")
+
+  set(${ARG_OUT_TARGETS} ${list_targets} PARENT_SCOPE)
+endfunction()
+
 set(lego1_link_libraries )
 if (ISLE_USE_SMARTHEAP)
   list(APPEND lego1_link_libraries SmartHeap::SmartHeap)
 endif()
 
 if(ISLE_BUILD_LEGO1)
-  add_lego_libraries(lego1
-    LINK_LIBRARIES ${lego1_link_libraries}
-    DLL_OUTPUT_NAME "LEGO1"
-    DLL_PREFIX ""
-    DLL_SUFFIX ".DLL"
-    OUT_TARGETS lego1_targets
-  )
-  reccmp_add_target(lego1 ID LEGO1)
+  if (BUILD_FOR_MODERN_OS)
+    add_lego64_libraries(lego1
+      LINK_LIBRARIES ${lego1_link_libraries}
+      DLL_OUTPUT_NAME "LEGO1"
+      DLL_PREFIX ""
+      DLL_SUFFIX ".lib"
+      OUT_TARGETS lego1_targets
+    )
+  else()
+    add_lego_libraries(lego1
+      LINK_LIBRARIES ${lego1_link_libraries}
+      DLL_OUTPUT_NAME "LEGO1"
+      DLL_PREFIX ""
+      DLL_SUFFIX ".DLL"
+      OUT_TARGETS lego1_targets
+    )
+    reccmp_add_target(lego1 ID LEGO1)
+  endif()
 endif()
 
 if(ISLE_BUILD_BETA10)
@@ -346,13 +443,9 @@ endif()
 
   if (BUILD_FOR_MODERN_OS)
     target_compile_definitions(isle PRIVATE "BUILD_FOR_MODERN_OS")
-    target_link_libraries(isle PRIVATE SDL2 SDL2main Vulkan-1)
+    target_link_libraries(isle PRIVATE SDL2 SDL2main)
     target_link_directories(isle PRIVATE ${SDL2_LIBDIR})
-    #TODO(KL): Clean this up a bit. I'm sure there is a cleaner way to do this. Vulkan includes are included in SDL2_INCLUDE_DIRS now..
-    target_include_directories(isle PRIVATE ${Vulkan_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS})
-
-    #TODO(KL): Temporary include till this can be removed
-    target_include_directories(isle PRIVATE "${PROJECT_SOURCE_DIR}/3rdparty/dx5/inc")
+    target_include_directories(isle PRIVATE ${SDL2_INCLUDE_DIRS})
   else()
     # Use internal DirectX 5 if required
     target_link_libraries(isle PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)

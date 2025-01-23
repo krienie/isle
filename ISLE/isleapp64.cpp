@@ -2,21 +2,20 @@
 
 #define SDL_MAIN_HANDLED
 
-#include "3dmanager/lego3dmanager.h"
-#include "decomp.h"
-#include "legoanimationmanager.h"
-#include "legobuildingmanager.h"
-#include "legogamestate.h"
-#include "legoinputmanager.h"
+//#include "3dmanager/lego3dmanager.h"
+//#include "legoanimationmanager.h"
+//#include "legobuildingmanager.h"
+//#include "legogamestate.h"
+//#include "legoinputmanager.h"
 #include "legomain.h"
-#include "legomodelpresenter.h"
-#include "legopartpresenter.h"
-#include "legoutils.h"
+//#include "legomodelpresenter.h"
+//#include "legopartpresenter.h"
+//#include "legoutils.h"
 #include "legovideomanager.h"
-#include "legoworldpresenter.h"
+//#include "legoworldpresenter.h"
 #include "misc.h"
 #include "mxbackgroundaudiomanager.h"
-#include "mxdirectx/mxdirect3d.h"
+//#include "mxdirectx/mxdirect3d.h"
 #include "mxdsaction.h"
 #include "mxmisc.h"
 #include "mxomnicreateflags.h"
@@ -26,9 +25,8 @@
 #include "mxtimer.h"
 #include "mxtransitionmanager.h"
 #include "mxvariabletable.h"
-#include "res/resource.h"
-#include "roi/legoroi.h"
-#include "viewmanager/viewmanager.h"
+//#include "roi/legoroi.h"
+//#include "viewmanager/viewmanager.h"
 
 #include <inifile-cpp/inicpp.h>
 
@@ -136,7 +134,7 @@ IsleApp::IsleApp()
 #else
 	m_videoParam = MxVideoParam(MxRect32(0, 0, 639, 479), NULL, 1, MxVideoParamFlags());
 #endif
-	m_videoParam.Flags().Set16Bit(MxDirectDraw::GetPrimaryBitDepth() == 16);
+	m_videoParam.Flags().Set16Bit(TRUE);
 
 	m_windowHandle = NULL;
 	m_cursorArrow = NULL;
@@ -150,26 +148,17 @@ IsleApp::IsleApp()
 // FUNCTION: ISLE 0x4011a0
 IsleApp::~IsleApp()
 {
-	if (LegoOmni::GetInstance()) {
+	if (LegoOmni::GetInstance())
+	{
 		Close();
 		MxOmni::DestroyInstance();
 	}
 
-	if (m_hdPath) {
-		delete[] m_hdPath;
-	}
+	delete[] m_hdPath;
+	delete[] m_cdPath;
+	delete[] m_deviceId;
+	delete[] m_savePath;
 
-	if (m_cdPath) {
-		delete[] m_cdPath;
-	}
-
-	if (m_deviceId) {
-		delete[] m_deviceId;
-	}
-
-	if (m_savePath) {
-		delete[] m_savePath;
-	}
 }
 
 // FUNCTION: ISLE 0x401260
@@ -178,27 +167,27 @@ void IsleApp::Close()
 	MxDSAction ds;
 	ds.SetUnknown24(-2);
 	
-	if (Lego()) {
-		GameState()->Save(0);
-		if (InputManager()) {
-			InputManager()->QueueEvent(c_notificationKeyPress, 0, 0, 0, VK_SPACE);
-		}
-
-		VideoManager()->Get3DManager()->GetLego3DView()->GetViewManager()->RemoveAll(NULL);
-	
-		Lego()->RemoveWorld(ds.GetAtomId(), ds.GetObjectId());
-		Lego()->DeleteObject(ds);
-		TransitionManager()->SetWaitIndicator(NULL);
-		Lego()->Resume();
-	
-		while (Streamer()->Close(NULL) == SUCCESS) {
-		}
-	
-		while (Lego() && !Lego()->DoesEntityExist(ds)) {
-			Timer()->GetRealTime();
-			TickleManager()->Tickle();
-		}
-	}
+	//if (Lego()) {
+	//	GameState()->Save(0);
+	//	if (InputManager()) {
+	//		InputManager()->QueueEvent(c_notificationKeyPress, 0, 0, 0, VK_SPACE);
+	//	}
+	//
+	//	VideoManager()->Get3DManager()->GetLego3DView()->GetViewManager()->RemoveAll(NULL);
+	//
+	//	Lego()->RemoveWorld(ds.GetAtomId(), ds.GetObjectId());
+	//	Lego()->DeleteObject(ds);
+	//	TransitionManager()->SetWaitIndicator(NULL);
+	//	Lego()->Resume();
+	//
+	//	while (Streamer()->Close(NULL) == SUCCESS) {
+	//	}
+	//
+	//	while (Lego() && !Lego()->DoesEntityExist(ds)) {
+	//		Timer()->GetRealTime();
+	//		TickleManager()->Tickle();
+	//	}
+	//}
 }
 
 // FUNCTION: ISLE 0x4013b0
@@ -220,11 +209,11 @@ BOOL IsleApp::SetupLegoOmni()
 		) == FAILURE;
 #endif
 
-	if (!failure) {
-		VariableTable()->SetVariable("ACTOR_01", "");
-		TickleManager()->SetClientTickleInterval(VideoManager(), 10);
-		result = TRUE;
-	}
+	//if (!failure) {
+	//	VariableTable()->SetVariable("ACTOR_01", "");
+	//	TickleManager()->SetClientTickleInterval(VideoManager(), 10);
+	//	result = TRUE;
+	//}
 
 	return result;
 }
@@ -313,7 +302,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
-
 			switch(event.type)
 			{
 
@@ -602,7 +590,7 @@ MxResult IsleApp::SetupWindow(HINSTANCE hInstance, LPSTR lpCmdLine)
 		WindowFlags |= SDL_WINDOW_FULLSCREEN;
 	}
 
-	m_windowHandle = SDL_CreateWindow("Vulkan Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	m_windowHandle = SDL_CreateWindow("Lego Island", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 									  g_windowRect.right - g_windowRect.left + 1, g_windowRect.bottom - g_windowRect.top + 1,
 									  WindowFlags);
 
@@ -616,35 +604,35 @@ MxResult IsleApp::SetupWindow(HINSTANCE hInstance, LPSTR lpCmdLine)
 		return FAILURE;
 	}
 
-	GameState()->SetSavePath(m_savePath);
-	GameState()->SerializePlayersInfo(LegoStorage::c_read);
-	GameState()->SerializeScoreHistory(LegoStorage::c_read);
-	
-	int iVar10;
-	switch (m_islandQuality) {
-	case 0:
-		iVar10 = 1;
-		break;
-	case 1:
-		iVar10 = 2;
-		break;
-	default:
-		iVar10 = 100;
-	}
-	
-	int uVar1 = (m_islandTexture == 0);
-	LegoModelPresenter::configureLegoModelPresenter(uVar1);
-	LegoPartPresenter::configureLegoPartPresenter(uVar1, iVar10);
-	LegoWorldPresenter::configureLegoWorldPresenter(m_islandQuality);
-	LegoBuildingManager::configureLegoBuildingManager(m_islandQuality);
-	LegoROI::configureLegoROI(iVar10);
-	LegoAnimationManager::configureLegoAnimationManager(m_islandQuality);
-	if (LegoOmni::GetInstance()) {
-		if (LegoOmni::GetInstance()->GetInputManager()) {
-			LegoOmni::GetInstance()->GetInputManager()->SetUseJoystick(m_useJoystick);
-			LegoOmni::GetInstance()->GetInputManager()->SetJoystickIndex(m_joystickIndex);
-		}
-	}
+	//GameState()->SetSavePath(m_savePath);
+	//GameState()->SerializePlayersInfo(LegoStorage::c_read);
+	//GameState()->SerializeScoreHistory(LegoStorage::c_read);
+	//
+	//int iVar10;
+	//switch (m_islandQuality) {
+	//case 0:
+	//	iVar10 = 1;
+	//	break;
+	//case 1:
+	//	iVar10 = 2;
+	//	break;
+	//default:
+	//	iVar10 = 100;
+	//}
+	//
+	//int uVar1 = (m_islandTexture == 0);
+	//LegoModelPresenter::configureLegoModelPresenter(uVar1);
+	//LegoPartPresenter::configureLegoPartPresenter(uVar1, iVar10);
+	//LegoWorldPresenter::configureLegoWorldPresenter(m_islandQuality);
+	//LegoBuildingManager::configureLegoBuildingManager(m_islandQuality);
+	//LegoROI::configureLegoROI(iVar10);
+	//LegoAnimationManager::configureLegoAnimationManager(m_islandQuality);
+	//if (LegoOmni::GetInstance()) {
+	//	if (LegoOmni::GetInstance()->GetInputManager()) {
+	//		LegoOmni::GetInstance()->GetInputManager()->SetUseJoystick(m_useJoystick);
+	//		LegoOmni::GetInstance()->GetInputManager()->SetJoystickIndex(m_joystickIndex);
+	//	}
+	//}
 
 	return SUCCESS;
 }
@@ -657,7 +645,7 @@ BOOL IsleApp::ReadReg(LPCSTR name, LPSTR outValue, DWORD outSize)
 
 	BOOL out = FALSE;
 	DWORD size = outSize;
-	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Mindscape\\LEGO Island", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Mindscape\\LEGO Island", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
 		if (RegQueryValueExA(hKey, name, NULL, &valueType, (LPBYTE) outValue, &size) == ERROR_SUCCESS) {
 			if (RegCloseKey(hKey) == ERROR_SUCCESS) {
 				out = TRUE;
@@ -839,7 +827,7 @@ void IsleApp::LoadConfig()
 inline void IsleApp::Tick(BOOL sleepIfNotNextFrame)
 {
 	// GLOBAL: ISLE 0x4101c0
-	static MxLong g_lastFrameTime = 0;
+	/*static MxLong g_lastFrameTime = 0;
 
 	// GLOBAL: ISLE 0x4101bc
 	static int g_startupDelay = 200;
@@ -912,34 +900,5 @@ inline void IsleApp::Tick(BOOL sleepIfNotNextFrame)
 	}
 	else if (sleepIfNotNextFrame != 0) {
 		Sleep(0);
-	}
-}
-
-// FUNCTION: ISLE 0x402e80
-void IsleApp::SetupCursor(WPARAM wParam)
-{
-	switch (wParam) {
-	case e_cursorArrow:
-		m_cursorCurrent = m_cursorArrow;
-		break;
-	case e_cursorBusy:
-		m_cursorCurrent = m_cursorBusy;
-		break;
-	case e_cursorNo:
-		m_cursorCurrent = m_cursorNo;
-		break;
-	case e_cursorNone:
-		m_cursorCurrent = NULL;
-	case e_cursorUnused3:
-	case e_cursorUnused4:
-	case e_cursorUnused5:
-	case e_cursorUnused6:
-	case e_cursorUnused7:
-	case e_cursorUnused8:
-	case e_cursorUnused9:
-	case e_cursorUnused10:
-		break;
-	}
-
-	SetCursor(m_cursorCurrent);
+	}*/
 }
