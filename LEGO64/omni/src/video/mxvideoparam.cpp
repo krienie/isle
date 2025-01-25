@@ -11,6 +11,7 @@ DECOMP_SIZE_ASSERT(MxVideoParam, 0x24)
 // FUNCTION: BETA10 0x1012db3e
 MxVideoParam::MxVideoParam()
 {
+	m_windowHandle = nullptr;
 	m_rect = MxRect32(0, 0, 640, 480);
 	m_palette = NULL;
 	m_backBuffers = 0;
@@ -28,6 +29,7 @@ MxVideoParam::MxVideoParam(MxRect32& p_rect, MxPalette* p_palette, MxULong p_bac
 	m_flags = p_flags;
 	m_unk0x1c = 0;
 	m_deviceId = NULL;
+	m_windowHandle = nullptr;
 }
 
 // FUNCTION: LEGO1 0x100becf0
@@ -40,6 +42,7 @@ MxVideoParam::MxVideoParam(MxVideoParam& p_videoParam)
 	m_flags = p_videoParam.m_flags;
 	m_unk0x1c = p_videoParam.m_unk0x1c;
 	m_deviceId = NULL;
+	m_windowHandle = p_videoParam.m_windowHandle;
 	SetDeviceName(p_videoParam.m_deviceId);
 }
 
@@ -81,6 +84,7 @@ MxVideoParam& MxVideoParam::operator=(const MxVideoParam& p_videoParam)
 	m_backBuffers = p_videoParam.m_backBuffers;
 	m_flags = p_videoParam.m_flags;
 	m_unk0x1c = p_videoParam.m_unk0x1c;
+	m_windowHandle = p_videoParam.m_windowHandle;
 	SetDeviceName(p_videoParam.m_deviceId);
 
 	return *this;

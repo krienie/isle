@@ -83,9 +83,9 @@ MxResult MxSoundManager::Create(MxU32 p_frequencyMS, MxBool p_createThread)
 		goto done;
 	}
 
-	if (m_directSound->SetCooperativeLevel(MxOmni::GetInstance()->GetWindowHandle(), DSSCL_PRIORITY) != DS_OK) {
-		goto done;
-	}
+	//if (m_directSound->SetCooperativeLevel(MxOmni::GetInstance()->GetWindowHandle(), DSSCL_PRIORITY) != DS_OK) {
+	//	goto done;
+	//}
 
 	DSBUFFERDESC desc;
 	memset(&desc, 0, sizeof(desc));

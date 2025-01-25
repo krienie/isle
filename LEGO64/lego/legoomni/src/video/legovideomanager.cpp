@@ -1,5 +1,30 @@
 #include "legovideomanager.h"
 
+LegoVideoManager::~LegoVideoManager()
+{
+	Destroy();
+}
+
+MxResult LegoVideoManager::Tickle()
+{
+	//TODO(KL): Implement
+	return MxVideoManager::Tickle();
+}
+
+void LegoVideoManager::Destroy()
+{
+	mVulkanRHI.reset();
+	//MxVideoManager::Destroy();
+}
+
+MxResult LegoVideoManager::Create(MxVideoParam& p_videoParam, MxU32 p_frequencyMS, MxBool p_createThread)
+{
+	mVulkanRHI = std::make_unique<MxVulkan>();
+	bool Success = mVulkanRHI->InitForWindow(p_videoParam.GetWindowHandle());
+
+	return Success ? SUCCESS : FAILURE;
+}
+
 /*#include "3dmanager/lego3dmanager.h"
 #include "legoinputmanager.h"
 #include "legomain.h"

@@ -238,9 +238,9 @@ MxResult MxVideoManager::Create(MxVideoParam& p_videoParam, MxU32 p_frequencyMS,
 	//	goto done;
 	//}
 
-	if (m_pDirectDraw->SetCooperativeLevel(MxOmni::GetInstance()->GetWindowHandle(), DDSCL_NORMAL) != DD_OK) {
-		goto done;
-	}
+	//if (m_pDirectDraw->SetCooperativeLevel(MxOmni::GetInstance()->GetWindowHandle(), DDSCL_NORMAL) != DD_OK) {
+	//	goto done;
+	//}
 
 	MxPalette* palette;
 	if (p_videoParam.GetPalette() == NULL) {

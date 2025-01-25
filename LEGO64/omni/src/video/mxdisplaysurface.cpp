@@ -140,7 +140,7 @@ MxResult MxDisplaySurface::Create(MxVideoParam& p_videoParam)
 	DDSURFACEDESC ddsd;
 	MxResult result = FAILURE;
 	LPDIRECTDRAW lpDirectDraw = MVideoManager()->GetDirectDraw();
-	HWND hWnd = MxOmni::GetInstance()->GetWindowHandle();
+	//HWND hWnd = MxOmni::GetInstance()->GetWindowHandle();
 
 	m_initialized = TRUE;
 	m_videoParam = p_videoParam;
@@ -169,9 +169,9 @@ MxResult MxDisplaySurface::Create(MxVideoParam& p_videoParam)
 		MxS32 width = m_videoParam.GetRect().GetWidth();
 		MxS32 height = m_videoParam.GetRect().GetHeight();
 
-		if (lpDirectDraw->SetCooperativeLevel(hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN)) {
-			goto done;
-		}
+		//if (lpDirectDraw->SetCooperativeLevel(hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN)) {
+		//	goto done;
+		//}
 
 		memset(&ddsd, 0, sizeof(ddsd));
 		ddsd.dwSize = sizeof(ddsd);
@@ -235,12 +235,12 @@ MxResult MxDisplaySurface::Create(MxVideoParam& p_videoParam)
 	memset(&m_surfaceDesc, 0, sizeof(m_surfaceDesc));
 	m_surfaceDesc.dwSize = sizeof(m_surfaceDesc);
 
-	if (!m_ddSurface2->GetSurfaceDesc(&m_surfaceDesc)) {
-		if (!lpDirectDraw->CreateClipper(0, &m_ddClipper, NULL) && !m_ddClipper->SetHWnd(0, hWnd) &&
-			!m_ddSurface1->SetClipper(m_ddClipper)) {
-			result = SUCCESS;
-		}
-	}
+	//if (!m_ddSurface2->GetSurfaceDesc(&m_surfaceDesc)) {
+	//	if (!lpDirectDraw->CreateClipper(0, &m_ddClipper, NULL) && !m_ddClipper->SetHWnd(0, hWnd) &&
+	//		!m_ddSurface1->SetClipper(m_ddClipper)) {
+	//		result = SUCCESS;
+	//	}
+	//}
 
 done:
 	return result;
@@ -843,7 +843,7 @@ void MxDisplaySurface::Display(MxS32 p_left, MxS32 p_top, MxS32 p_left2, MxS32 p
 		}
 		else {
 			MxPoint32 point(0, 0);
-			ClientToScreen(MxOmni::GetInstance()->GetWindowHandle(), (LPPOINT) &point);
+			//ClientToScreen(MxOmni::GetInstance()->GetWindowHandle(), (LPPOINT) &point);
 
 			p_left2 += m_videoParam.GetRect().GetLeft() + point.GetX();
 			p_top2 += m_videoParam.GetRect().GetTop() + point.GetY();

@@ -200,7 +200,7 @@ BOOL IsleApp::SetupLegoOmni()
 #ifdef COMPAT_MODE
 	BOOL failure;
 	{
-		MxOmniCreateParam param(mediaPath, (struct HWND__*) m_windowHandle, m_videoParam, MxOmniCreateFlags());
+		MxOmniCreateParam param(mediaPath, m_windowHandle, m_videoParam, MxOmniCreateFlags());
 		failure = Lego()->Create(param) == FAILURE;
 	}
 #else
@@ -215,7 +215,8 @@ BOOL IsleApp::SetupLegoOmni()
 	//	result = TRUE;
 	//}
 
-	return result;
+	//TODO(KL): temporary
+	return failure ? FAILURE : SUCCESS;
 }
 
 // FUNCTION: ISLE 0x401560
@@ -599,8 +600,9 @@ MxResult IsleApp::SetupWindow(HINSTANCE hInstance, LPSTR lpCmdLine)
 		return FAILURE;
 	}
 
-	//TODO(KL): Setup Vulkan
-	if (!SetupLegoOmni()) {
+	m_videoParam.SetWindowHandle(m_windowHandle);
+	if (!SetupLegoOmni())
+	{
 		return FAILURE;
 	}
 

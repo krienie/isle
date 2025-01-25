@@ -329,7 +329,10 @@ function(add_lego64_libraries NAME)
   add_library(omni${ARG_SUFFIX} STATIC ${omniSrc} ${omniInc})
   list(APPEND list_targets omni${ARG_SUFFIX})
   set_property(TARGET omni${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "omni$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(omni${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO64/omni/include" "${PROJECT_SOURCE_DIR}/LEGO64" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(omni${ARG_SUFFIX} PRIVATE
+    "${PROJECT_SOURCE_DIR}/LEGO64/omni/include"
+    "${PROJECT_SOURCE_DIR}/LEGO64"
+    "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(omni${ARG_SUFFIX} PRIVATE dsound winmm)
   if(MSVC)
     source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/omni/src" PREFIX "Source Files" FILES ${omniSrc})
@@ -372,8 +375,9 @@ function(add_lego64_libraries NAME)
   )
 
   foreach(tgt IN LISTS list_targets)
+    target_include_directories(${tgt} PRIVATE ${SDL2_INCLUDE_DIRS})
     target_link_libraries(${tgt} PRIVATE ${ARG_LINK_LIBRARIES})
-      target_compile_definitions(${tgt} PRIVATE "BUILD_FOR_MODERN_OS")
+    target_compile_definitions(${tgt} PRIVATE "BUILD_FOR_MODERN_OS")
     install(TARGETS ${tgt} DESTINATION .)
   endforeach()
 

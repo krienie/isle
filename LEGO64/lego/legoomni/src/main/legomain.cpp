@@ -175,14 +175,15 @@ MxResult LegoOmni::Create(MxOmniCreateParam& p_param)
 	//	m_soundManager = NULL;
 	//	return result;
 	//}
-	//
-	//if (!(m_videoManager = new LegoVideoManager()) ||
-	//	m_videoManager->Create(p_param.GetVideoParam(), 100, 0) != SUCCESS) {
-	//	delete m_videoManager;
-	//	m_videoManager = NULL;
-	//	return result;
-	//}
-	//
+	
+	if (m_videoManager = new LegoVideoManager();
+		m_videoManager->Create(p_param.GetVideoParam(), 100, 0) != SUCCESS)
+	{
+		delete m_videoManager;
+		m_videoManager = nullptr;
+		return result;
+	}
+	
 	//if (!(m_inputManager = new LegoInputManager()) || m_inputManager->Create(p_param.GetWindowHandle()) != SUCCESS) {
 	//	delete m_inputManager;
 	//	m_inputManager = NULL;

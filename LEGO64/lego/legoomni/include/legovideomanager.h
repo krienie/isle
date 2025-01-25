@@ -1,5 +1,25 @@
 #pragma once
 
+#include "legophonemelist.h"
+#include "mxvideomanager.h"
+#include "mxvulkan/mxvulkan.h"
+
+#include <memory>
+
+class LegoVideoManager : public MxVideoManager
+{
+public:
+	LegoVideoManager() = default;
+	~LegoVideoManager() override;
+
+	MxResult Tickle() override;
+	void Destroy() override;
+	MxResult Create(MxVideoParam& p_videoParam, MxU32 p_frequencyMS, MxBool p_createThread) override;
+
+private:
+	std::unique_ptr<MxVulkan> mVulkanRHI;
+};
+
 /*#include "decomp.h"
 #include "legophonemelist.h"
 #include "mxvideomanager.h"
