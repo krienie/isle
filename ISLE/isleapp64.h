@@ -4,6 +4,7 @@
 #include "mxtypes.h"
 #include "mxvideoparam.h"
 
+#include <string>
 #include <SDL2/SDL.h>
 #include <windows.h>
 
@@ -25,7 +26,7 @@ public:
 		BOOL param_6,
 		BOOL param_7,
 		BOOL wideViewAngle,
-		char* deviceId
+		const std::string &deviceId
 	);
 	MxResult SetupWindow(HINSTANCE hInstance, LPSTR lpCmdLine);
 
@@ -47,10 +48,10 @@ public:
 	void SetWindowActive(BOOL p_windowActive) { m_windowActive = p_windowActive; }
 
 private:
-	LPSTR m_hdPath;            // 0x00
-	LPSTR m_cdPath;            // 0x04
-	LPSTR m_deviceId;          // 0x08
-	LPSTR m_savePath;          // 0x0c
+	std::string m_hdPath;
+	std::string m_cdPath;
+	std::string m_deviceId;
+	std::string m_savePath;
 	BOOL m_fullScreen;         // 0x10
 	BOOL m_flipSurfaces;       // 0x14
 	BOOL m_backBuffersInVram;  // 0x18

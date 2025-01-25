@@ -16,7 +16,7 @@ public:
 	MxVideoParam(MxRect32& p_rect, MxPalette* p_palette, MxULong p_backBuffers, MxVideoParamFlags& p_flags);
 	MxVideoParam(MxVideoParam& p_videoParam);
 	~MxVideoParam();
-	void SetDeviceName(char* p_deviceId);
+	void SetDeviceName(const char* p_deviceId);
 	MxVideoParam& operator=(const MxVideoParam& p_videoParam);
 
 	// FUNCTION: BETA10 0x100886e0

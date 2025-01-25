@@ -57,7 +57,7 @@ MxVideoParam::~MxVideoParam()
 
 // FUNCTION: LEGO1 0x100bed70
 // FUNCTION: BETA10 0x1012dce1
-void MxVideoParam::SetDeviceName(char* p_deviceId)
+void MxVideoParam::SetDeviceName(const char* p_deviceId)
 {
 	if (m_deviceId != NULL) {
 		delete[] m_deviceId;

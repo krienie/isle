@@ -60,6 +60,8 @@ fs::path GetConfigFilePath()
 DECOMP_SIZE_ASSERT(IsleApp, 0x8c)
 #endif
 
+namespace
+{
 // GLOBAL: ISLE 0x410030
 IsleApp* g_isle = NULL;
 
@@ -95,6 +97,7 @@ int g_targetDepth = 32;
 
 // STRING: ISLE 0x4101dc
 #define WINDOW_TITLE "LEGO\xAE"
+}
 
 // Might be static functions of IsleApp
 BOOL FindExistingInstance();
@@ -103,10 +106,6 @@ BOOL StartDirectSound();
 // FUNCTION: ISLE 0x401000
 IsleApp::IsleApp()
 {
-	m_hdPath = NULL;
-	m_cdPath = NULL;
-	m_deviceId = NULL;
-	m_savePath = NULL;
 	m_fullScreen = FALSE;
 	m_flipSurfaces = FALSE;
 	m_backBuffersInVram = TRUE;
@@ -154,11 +153,10 @@ IsleApp::~IsleApp()
 		MxOmni::DestroyInstance();
 	}
 
-	delete[] m_hdPath;
-	delete[] m_cdPath;
-	delete[] m_deviceId;
-	delete[] m_savePath;
-
+	if (m_windowHandle)
+	{
+		SDL_DestroyWindow(m_windowHandle);
+	}
 }
 
 // FUNCTION: ISLE 0x401260
@@ -229,7 +227,7 @@ void IsleApp::SetupVideoFlags(
 	BOOL param_6,
 	BOOL param_7,
 	BOOL wideViewAngle,
-	char* deviceId
+	const std::string &deviceId
 )
 {
 	m_videoParam.Flags().SetFullScreen(fullScreen);
@@ -239,7 +237,7 @@ void IsleApp::SetupVideoFlags(
 	m_videoParam.Flags().SetF1bit7(param_7);
 	m_videoParam.Flags().SetWideViewAngle(wideViewAngle);
 	m_videoParam.Flags().SetF2bit1(1);
-	m_videoParam.SetDeviceName(deviceId);
+	m_videoParam.SetDeviceName(deviceId.c_str());
 	if (using8bit) {
 		m_videoParam.Flags().Set16Bit(0);
 	}
@@ -292,6 +290,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Lego Island Error",
 								 "\"LEGO Island\" failed to start.  Please quit all other applications and try again.", nullptr);
 
+		delete g_isle;
 		return 0;
 	}
 
@@ -358,10 +357,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//	}
 	//}
 
-	if (window)
-	{
-		SDL_DestroyWindow(window);
-	}
+	delete g_isle;
 
 	return 0;
 }
@@ -698,25 +694,25 @@ void IsleApp::LoadConfig()
 {
 	char buffer[1024];
 
-	if (!ReadReg("diskpath", buffer, sizeof(buffer))) {
+	if (!ReadReg("diskpath", buffer, sizeof(buffer)))
+	{
 		strcpy(buffer, MxOmni::GetHD());
 	}
 
-	m_hdPath = new char[strlen(buffer) + 1];
-	strcpy(m_hdPath, buffer);
-	MxOmni::SetHD(m_hdPath);
+	m_hdPath = std::string(buffer);
+	MxOmni::SetHD(m_hdPath.c_str());
 
-	if (!ReadReg("cdpath", buffer, sizeof(buffer))) {
+	if (!ReadReg("cdpath", buffer, sizeof(buffer)))
+	{
 		strcpy(buffer, MxOmni::GetCD());
 	}
 
-	m_cdPath = new char[strlen(buffer) + 1];
-	strcpy(m_cdPath, buffer);
-	MxOmni::SetCD(m_cdPath);
+	m_cdPath = std::string(buffer);
+	MxOmni::SetCD(m_cdPath.c_str());
 
-	if (ReadReg("savepath", buffer, sizeof(buffer))) {
-		m_savePath = new char[strlen(buffer) + 1];
-		strcpy(m_savePath, buffer);
+	if (ReadReg("savepath", buffer, sizeof(buffer)))
+	{
+		m_savePath = std::string(buffer);
 	}
 
 	if (fs::exists(GetConfigFilePath()))
@@ -737,13 +733,7 @@ void IsleApp::LoadConfig()
 			return false;
 		};
 
-		std::string DeviceId;
-		if (ReadEntry("DeviceID", &DeviceId))
-		{
-			m_deviceId = new char[DeviceId.size()];
-			strcpy(m_deviceId, DeviceId.c_str());
-		}
-		
+		ReadEntry("DeviceID", &m_deviceId);
 		ReadEntry("FlipSurfaces", &m_flipSurfaces);
 		ReadEntry("FullScreen", &m_fullScreen);
 		ReadEntry("WideViewAngle", &m_wideViewAngle);
@@ -819,8 +809,7 @@ void IsleApp::LoadConfig()
 		m_islandTexture = atoi(buffer);
 
 		if (ReadReg("3D Device ID", buffer, sizeof(buffer))) {
-			m_deviceId = new char[strlen(buffer) + 1];
-			strcpy(m_deviceId, buffer);
+			m_deviceId = std::string(buffer);
 		}
 	}
 }

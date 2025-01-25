@@ -9,6 +9,11 @@
 #include <iostream>
 #include <vector>
 
+MxVulkan::~MxVulkan()
+{
+	Shutdown();
+}
+
 bool MxVulkan::InitForWindow(SDL_Window* window)
 {
 	if (!VulkanPlatform::LoadVulkanLibrary())
@@ -66,13 +71,18 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 		return false;
 	}
 
+	VulkanPlatform::LoadVulkanInstanceFunctions(Instance);
+
 	return true;
 }
 
 void MxVulkan::Shutdown()
 {
-	if (Instance)
+	if (Instance && vkDestroyInstance)
 	{
 		vkDestroyInstance(Instance, nullptr);
+		Instance = nullptr;
 	}
+
+	VulkanPlatform::ReleaseVulkanLibrary();
 }
