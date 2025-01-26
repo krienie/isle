@@ -14,5 +14,8 @@ public:
 	void Shutdown();
 
 private:
+	bool CreateDevice();
+
 	VkInstance Instance = nullptr;
+	VkDevice Device = nullptr;
 };

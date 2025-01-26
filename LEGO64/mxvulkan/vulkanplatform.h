@@ -18,4 +18,6 @@ public:
 	static void ReleaseVulkanLibrary();
 
 	static bool LoadVulkanInstanceFunctions(VkInstance instance);
+
+	static bool CreateSurface();
 };
