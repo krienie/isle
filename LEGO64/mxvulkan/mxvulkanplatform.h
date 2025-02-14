@@ -9,9 +9,11 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #endif
 
-#include "vulkanfunctions.h"
+#include "mxvulkanfunctions.h"
 
-class VulkanPlatform
+#include <SDL_vulkan.h>
+
+class MxVulkanPlatform
 {
 public:
 	static bool LoadVulkanLibrary();
@@ -19,5 +21,5 @@ public:
 
 	static bool LoadVulkanInstanceFunctions(VkInstance instance);
 
-	static bool CreateSurface();
+	static VkSurfaceKHR CreateSurface(SDL_Window* WindowHandle, VkInstance VulkanInstance);
 };

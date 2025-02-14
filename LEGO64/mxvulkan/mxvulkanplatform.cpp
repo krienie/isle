@@ -1,5 +1,6 @@
-#include "vulkanplatform.h"
+#include "mxvulkanplatform.h"
 
+#include <SDL_vulkan.h>
 #include <iostream>
 
 #ifdef _WIN32
@@ -24,7 +25,7 @@ LIBRARY_TYPE VulkanLibrary = nullptr;
 #define DEFINE_VK_ENTRYPOINTS(Type,Func) Type Func = nullptr;
 ENUM_VK_ENTRYPOINTS_ALL(DEFINE_VK_ENTRYPOINTS)
 
-bool VulkanPlatform::LoadVulkanLibrary()
+bool MxVulkanPlatform::LoadVulkanLibrary()
 {
 	if (VulkanLibrary)
 	{
@@ -64,7 +65,7 @@ bool VulkanPlatform::LoadVulkanLibrary()
 	return false;
 }
 
-void VulkanPlatform::ReleaseVulkanLibrary()
+void MxVulkanPlatform::ReleaseVulkanLibrary()
 {
 	if (VulkanLibrary)
 	{
@@ -77,7 +78,7 @@ void VulkanPlatform::ReleaseVulkanLibrary()
 	}
 }
 
-bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance instance)
+bool MxVulkanPlatform::LoadVulkanInstanceFunctions(VkInstance instance)
 {
 	if (!VulkanLibrary)
 	{
@@ -106,4 +107,15 @@ bool VulkanPlatform::LoadVulkanInstanceFunctions(VkInstance instance)
 	}
 
 	return true;
+}
+
+VkSurfaceKHR MxVulkanPlatform::CreateSurface(SDL_Window* WindowHandle, VkInstance VulkanInstance)
+{
+	VkSurfaceKHR Surface;
+	if (!SDL_Vulkan_CreateSurface(WindowHandle, VulkanInstance, &Surface))
+	{
+		return VK_NULL_HANDLE;
+	}
+
+	return Surface;
 }

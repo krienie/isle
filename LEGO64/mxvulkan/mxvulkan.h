@@ -1,8 +1,12 @@
 #pragma once
 
+#include "mxvulkandevice.h"
+#include "mxvulkanplatform.h"
+#include "mxvulkanswapchain.h"
+
 #include <SDL2/SDL_video.h>
 
-#include "vulkanplatform.h"
+#include <memory>
 
 class MxVulkan
 {
@@ -14,8 +18,9 @@ public:
 	void Shutdown();
 
 private:
-	bool CreateDevice();
+	VkInstance VulkanInstance = nullptr;
+	VkQueue GraphicsQueue = nullptr;
 
-	VkInstance Instance = nullptr;
-	VkDevice Device = nullptr;
+	std::unique_ptr<MxVulkanDevice> VulkanDevice = nullptr;
+	std::unique_ptr<MxVulkanSwapchain> Swapchain = nullptr;
 };
