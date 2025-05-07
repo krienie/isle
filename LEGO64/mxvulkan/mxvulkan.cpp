@@ -24,15 +24,15 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 		return false;
 	}
 
-	unsigned extension_count;
-	if (!SDL_Vulkan_GetInstanceExtensions(window, &extension_count, nullptr))
+	unsigned int numExtensions = 0;
+	if (!SDL_Vulkan_GetInstanceExtensions(window, &numExtensions, nullptr))
 	{
 		std::cout << "Could not get the number of required instance extensions from SDL.\n";
 		return false;
 	}
 
-	std::vector<const char*> extensions(extension_count);
-	if (!SDL_Vulkan_GetInstanceExtensions(window, &extension_count, extensions.data()))
+	std::vector<const char*> extensions(numExtensions);
+	if (!SDL_Vulkan_GetInstanceExtensions(window, &numExtensions, extensions.data()))
 	{
 		std::cout << "Could not get the names of required instance extensions from SDL.\n";
 		return false;
@@ -66,9 +66,9 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 		extensions.data()
 	};
 
-	VkResult Result = vkCreateInstance(&instInfo, nullptr, &VulkanInstance);
+	VkResult result = vkCreateInstance(&instInfo, nullptr, &VulkanInstance);
 
-	if (Result != VK_SUCCESS)
+	if (result != VK_SUCCESS)
 	{
 		std::cout << "Unable to create Vulkan Instance\n";
 		return false;
@@ -87,6 +87,7 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 	GraphicsQueue = VulkanDevice->GetGraphicsQueue();
 
 	Swapchain = std::make_unique<MxVulkanSwapchain>(VulkanInstance, VulkanDevice.get());
+	Swapchain->Create(window);
 
 	return true;
 }
