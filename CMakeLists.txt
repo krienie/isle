@@ -73,6 +73,8 @@ option(ISLE_DECOMP_ASSERT "Assert struct size" ${MSVC_FOR_DECOMP})
 cmake_dependent_option(ISLE_USE_DX5_LIBS "Build with internal DirectX 5 SDK Libraries" ON ISLE_USE_DX5 OFF)
 option(ISLE_BUILD_LEGO1 "Build LEGO1.DLL library" ON)
 option(ISLE_BUILD_BETA10 "Build BETA10.DLL library" OFF)
+option(ISLE_INCLUDE_ENTROPY "Build with entropy.h" OFF)
+option(ISLE_ENTROPY_FILENAME "Entropy header filename" "entropy.h")
 
 #TODO(KL): Temporarily disabled
 #if(NOT (ISLE_BUILD_LEGO1 OR ISLE_BUILD_BETA10))
@@ -264,6 +266,7 @@ function(add_lego_libraries NAME)
 
   # Link libraries
   target_link_libraries(${NAME} PRIVATE
+    ${ARG_LINK_LIBRARIES}
     dinput
     misc${ARG_SUFFIX}
     geom${ARG_SUFFIX}
@@ -391,7 +394,7 @@ endfunction()
 
 set(lego1_link_libraries )
 if (ISLE_USE_SMARTHEAP)
-  list(APPEND lego1_link_libraries SmartHeap::SmartHeap)
+  list(APPEND lego1_link_libraries SmartHeap::SmartHeap libcmt)
 endif()
 
 if(ISLE_BUILD_LEGO1)
@@ -552,6 +555,19 @@ if (MSVC_FOR_DECOMP)
   if (ISLE_BUILD_APP)
     target_link_options(isle PRIVATE "/OPT:REF")
     set_property(TARGET isle ${lego1_targets} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  endif()
+
+  if (ISLE_INCLUDE_ENTROPY)
+    message(STATUS "Using entropy file: ${ISLE_ENTROPY_FILENAME}")
+    foreach(tgt IN LISTS lego1_targets beta10_targets)
+      target_compile_options(${tgt} PRIVATE /FI${PROJECT_SOURCE_DIR}/${ISLE_ENTROPY_FILENAME})
+    endforeach()
+    if (TARGET isle)
+      target_compile_options(isle PRIVATE /FI${PROJECT_SOURCE_DIR}/${ISLE_ENTROPY_FILENAME})
+    endif()
+    if (TARGET config)
+      target_compile_options(config PRIVATE /FI${PROJECT_SOURCE_DIR}/${ISLE_ENTROPY_FILENAME})
+    endif()
   endif()
 
   if(TARGET lego1)
