@@ -201,7 +201,7 @@ bool MxVulkanSwapchain::Create(SDL_Window* WindowHandle)
 	result = vkCreateSwapchainKHR(m_vulkanDevice->GetDeviceInstance(), &swapchainCreateInfo, nullptr, &m_swapchain);
 	if (result != VK_SUCCESS)
 	{
-		std::cout << "Could not create a swapchain. Aborting." << std::endl;
+		std::cout << "Could not create a swapchain. Aborting.\n";
 		return false;
 	}
 
@@ -219,6 +219,12 @@ bool MxVulkanSwapchain::Create(SDL_Window* WindowHandle)
 	{
 		std::cout << "Could not enumerate swapchain images. Aborting.\n";
 		return false;
+	}
+
+	m_imageSemaphores.reserve(numSwapchainImages);
+	for (uint32_t i = 0; i < numSwapchainImages; ++i)
+	{
+		m_imageSemaphores.emplace_back(new MxVulkanSemaphore(m_vulkanDevice));
 	}
 
 	return true;
