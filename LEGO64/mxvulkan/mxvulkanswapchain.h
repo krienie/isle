@@ -17,8 +17,11 @@ public:
 	void Present();
 
 private:
-	VkSwapchainKHR Swapchain = nullptr;
-	VkSurfaceKHR Surface = nullptr;
-	VkInstance VulkanInstance = nullptr;
-	MxVulkanDevice* VulkanDevice = nullptr;
+	VkSwapchainKHR m_swapchain = nullptr;
+	VkSurfaceKHR m_surface = nullptr;
+	VkInstance m_vulkanInstance = nullptr;
+	MxVulkanDevice* m_vulkanDevice = nullptr;
+
+	std::vector<VkImage> m_images;
+	std::vector<VkImageView> m_imageViews;
 };

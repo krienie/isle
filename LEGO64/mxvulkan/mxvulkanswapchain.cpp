@@ -56,7 +56,9 @@ VkPresentModeKHR GetPresentationMode(VkPhysicalDevice PhysicalDevice, VkSurfaceK
 		}
 	}
 
-	if (foundPresentModeImmediate) //TODO(KL): check for vsync?
+	//TODO(KL): check for vsync?
+	constexpr bool useVsync = true;
+	if (foundPresentModeImmediate && !useVsync)
 	{
 		std::cout << "Using VK_PRESENT_MODE_IMMEDIATE_KHR\n";
 		return VK_PRESENT_MODE_IMMEDIATE_KHR;
@@ -78,10 +80,19 @@ VkPresentModeKHR GetPresentationMode(VkPhysicalDevice PhysicalDevice, VkSurfaceK
 	return presentationModes[0];
 }
 
-VkExtent2D GetBufferSize(uint32_t DesiredWidth, uint32_t DesiredHeight, const VkSurfaceCapabilitiesKHR& SurfaceCapabilities)
+VkExtent2D GetBufferSize(const VkSurfaceCapabilitiesKHR& SurfaceCapabilities)
 {
-	uint32_t UsedWidth = std::clamp(DesiredWidth, SurfaceCapabilities.minImageExtent.width, SurfaceCapabilities.maxImageExtent.width);
-	uint32_t UsedHeight = std::clamp(DesiredHeight, SurfaceCapabilities.minImageExtent.height, SurfaceCapabilities.maxImageExtent.height);
+	if (SurfaceCapabilities.currentExtent.width != 0xFFFFFFFF)
+	{
+		// Use the client surface size
+		return SurfaceCapabilities.currentExtent;
+	}
+
+	// Fall-back to a default size
+	uint32_t DefaultWidth = 640u;
+	uint32_t DefaultHeight = 480u;
+	uint32_t UsedWidth = std::clamp(DefaultWidth, SurfaceCapabilities.minImageExtent.width, SurfaceCapabilities.maxImageExtent.width);
+	uint32_t UsedHeight = std::clamp(DefaultHeight, SurfaceCapabilities.minImageExtent.height, SurfaceCapabilities.maxImageExtent.height);
 
 	return {UsedWidth, UsedHeight};
 }
@@ -90,55 +101,61 @@ VkSurfaceFormatKHR GetSurfaceFormat(VkPhysicalDevice PhysicalDevice, VkSurfaceKH
 {
 	constexpr VkSurfaceFormatKHR defaultSurfaceFormat = { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 
-	uint32_t numSurfaceFormats = 0u;
-	VkResult result = vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, Surface, &numSurfaceFormats, nullptr);
-	if (result != VK_SUCCESS)
-	{
-		std::cout << "Error getting surface formats. Using a default in the hopes that it works..\n";
-		return defaultSurfaceFormat;
-	}
+	//TODO(KL): Properly check for the surface format and support more formats. For now this will have to do.
+	return defaultSurfaceFormat;
 
-	std::vector<VkSurfaceFormatKHR> surfaceFormats(numSurfaceFormats);
-	result = vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice, Surface, &numSurfaceFormats, surfaceFormats.data());
-	if (result != VK_SUCCESS)
-	{
-		std::cout << "Error getting surface formats. Using a default in the hopes that it works..\n";
-		return defaultSurfaceFormat;
-	}
-
-
+	//uint32_t numSurfaceFormats = 0u;
+	//VkResult result = vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, &numSurfaceFormats, nullptr);
+	//if (result != VK_SUCCESS)
+	//{
+	//	std::cout << "Error getting surface formats. Using a default in the hopes that it works..\n";
+	//	return defaultSurfaceFormat;
+	//}
+	//
+	//std::vector<VkSurfaceFormatKHR> surfaceFormats(numSurfaceFormats);
+	//result = vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_surface, &numSurfaceFormats, surfaceFormats.data());
+	//if (result != VK_SUCCESS)
+	//{
+	//	std::cout << "Error getting surface formats. Using a default in the hopes that it works..\n";
+	//	return defaultSurfaceFormat;
+	//}
 }
 }
 
 MxVulkanSwapchain::MxVulkanSwapchain(VkInstance InVulkanInstance, MxVulkanDevice* InVulkanDevice)
-	: VulkanInstance(InVulkanInstance), VulkanDevice(InVulkanDevice)
+	: m_vulkanInstance(InVulkanInstance), m_vulkanDevice(InVulkanDevice)
 {
-	assert(VulkanInstance);
-	assert(VulkanDevice);
+	assert(m_vulkanInstance);
+	assert(m_vulkanDevice);
 }
 
 MxVulkanSwapchain::~MxVulkanSwapchain()
 {
-	//TODO(KL): Destroy Swapchains
-	if (Surface)
+	if (m_swapchain)
 	{
-		vkDestroySurfaceKHR(VulkanInstance, Surface, nullptr);
-		Surface = nullptr;
+		vkDestroySwapchainKHR(m_vulkanDevice->GetDeviceInstance(), m_swapchain, nullptr);
+		m_swapchain = nullptr;
+	}
+
+	if (m_surface)
+	{
+		vkDestroySurfaceKHR(m_vulkanInstance, m_surface, nullptr);
+		m_surface = nullptr;
 	}
 }
 
 bool MxVulkanSwapchain::Create(SDL_Window* WindowHandle)
 {
-	Surface = MxVulkanPlatform::CreateSurface(WindowHandle, VulkanInstance);
-	if (!Surface)
+	m_surface = MxVulkanPlatform::CreateSurface(WindowHandle, m_vulkanInstance);
+	if (!m_surface)
 	{
 		return false;
 	}
 
-	const VkPhysicalDevice PhysicalDevice = VulkanDevice->GetPhysicalDevice();
+	const VkPhysicalDevice physicalDevice = m_vulkanDevice->GetPhysicalDevice();
 
 	VkSurfaceCapabilitiesKHR surfaceCapabilities;
-	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(PhysicalDevice, Surface, &surfaceCapabilities);
+	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_surface, &surfaceCapabilities);
 	if (result != VK_SUCCESS)
 	{
 		return false;
@@ -146,8 +163,8 @@ bool MxVulkanSwapchain::Create(SDL_Window* WindowHandle)
 
 	uint32_t numBuffers = std::min(surfaceCapabilities.minImageCount + 1u, surfaceCapabilities.maxImageCount);
 
-	VkPresentModeKHR presentationMode = GetPresentationMode(PhysicalDevice, Surface);
-	VkExtent2D bufferSize = GetBufferSize(640, 480, surfaceCapabilities);
+	VkPresentModeKHR presentationMode = GetPresentationMode(physicalDevice, m_surface);
+	VkExtent2D bufferSize = GetBufferSize(surfaceCapabilities);
 
 	VkImageUsageFlags desiredUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	VkImageUsageFlags bufferUsage = desiredUsage & surfaceCapabilities.supportedUsageFlags;
@@ -157,13 +174,57 @@ bool MxVulkanSwapchain::Create(SDL_Window* WindowHandle)
 		return false;
 	}
 
-	//{ VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }
+	VkSurfaceFormatKHR surfaceFormat = GetSurfaceFormat(physicalDevice, m_surface);
 
-	//vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice, )
+	VkSwapchainCreateInfoKHR swapchainCreateInfo =
+	{
+		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		nullptr,
+		0,
+		m_surface,
+		numBuffers,
+		surfaceFormat.format,
+		surfaceFormat.colorSpace,
+		bufferSize,
+		1, //TODO(KL): Support multi-view
+		desiredUsage,
+		VK_SHARING_MODE_EXCLUSIVE,
+		0,
+		nullptr,
+		surfaceCapabilities.currentTransform,
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		presentationMode,
+		VK_TRUE,
+		VK_NULL_HANDLE
+	};
+
+	result = vkCreateSwapchainKHR(m_vulkanDevice->GetDeviceInstance(), &swapchainCreateInfo, nullptr, &m_swapchain);
+	if (result != VK_SUCCESS)
+	{
+		std::cout << "Could not create a swapchain. Aborting." << std::endl;
+		return false;
+	}
+
+	uint32_t numSwapchainImages = 0u;
+	result = vkGetSwapchainImagesKHR(m_vulkanDevice->GetDeviceInstance(), m_swapchain, &numSwapchainImages, nullptr);
+	if (result != VK_SUCCESS)
+	{
+		std::cout << "Could not get the number of swapchain images. Aborting.\n";
+		return false;
+	}
+
+	m_images.resize(numSwapchainImages);
+	result = vkGetSwapchainImagesKHR(m_vulkanDevice->GetDeviceInstance(), m_swapchain, &numSwapchainImages, m_images.data());
+	if (result != VK_SUCCESS)
+	{
+		std::cout << "Could not enumerate swapchain images. Aborting.\n";
+		return false;
+	}
 
 	return true;
 }
 
 void MxVulkanSwapchain::Present()
 {
+	//TODO(KL): Implement
 }
