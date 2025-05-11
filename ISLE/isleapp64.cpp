@@ -249,6 +249,20 @@ void IsleApp::SetupVideoFlags(
 // FUNCTION: ISLE 0x401610
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+#ifdef WIN32
+#ifdef _DEBUG
+        // open console when compiling for debugging
+        AllocConsole();
+        AttachConsole(GetCurrentProcessId());
+
+#pragma warning(push)
+#pragma warning(disable : 4996) // 'freopen': This function or variable may be unsafe
+        freopen( "CON", "w", stdout );
+        freopen( "CON", "w", stderr );
+#pragma warning(pop)
+#endif
+#endif
+
 	// Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
