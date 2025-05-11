@@ -18,9 +18,9 @@ public:
 	void Shutdown();
 
 private:
-	VkInstance VulkanInstance = nullptr;
-	VkQueue GraphicsQueue = nullptr;
+	VkInstance m_vulkanInstance = nullptr;
+	VkQueue m_graphicsQueue = nullptr;
 
-	std::unique_ptr<MxVulkanDevice> VulkanDevice = nullptr;
-	std::unique_ptr<MxVulkanSwapchain> Swapchain = nullptr;
+	std::unique_ptr<MxVulkanDevice> m_vulkanDevice = nullptr;
+	std::unique_ptr<MxVulkanSwapchain> m_swapchain = nullptr;
 };

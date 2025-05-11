@@ -66,7 +66,7 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 		extensions.data()
 	};
 
-	VkResult result = vkCreateInstance(&instInfo, nullptr, &VulkanInstance);
+	VkResult result = vkCreateInstance(&instInfo, nullptr, &m_vulkanInstance);
 
 	if (result != VK_SUCCESS)
 	{
@@ -74,33 +74,37 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 		return false;
 	}
 
-	MxVulkanPlatform::LoadVulkanInstanceFunctions(VulkanInstance);
+	MxVulkanPlatform::LoadVulkanInstanceFunctions(m_vulkanInstance);
 
-	VulkanDevice = std::make_unique<MxVulkanDevice>(VulkanInstance);
-	if (!VulkanDevice->Create())
+	m_vulkanDevice = std::make_unique<MxVulkanDevice>(m_vulkanInstance);
+	if (!m_vulkanDevice->Create())
 	{
-		VulkanDevice.reset();
+		m_vulkanDevice.reset();
 		std::cout << "Unable to create Vulkan Device\n";
 		return false;
 	}
 
-	GraphicsQueue = VulkanDevice->GetGraphicsQueue();
+	m_graphicsQueue = m_vulkanDevice->GetGraphicsQueue();
 
-	Swapchain = std::make_unique<MxVulkanSwapchain>(VulkanInstance, VulkanDevice.get());
-	Swapchain->Create(window);
+	m_swapchain = std::make_unique<MxVulkanSwapchain>(m_vulkanInstance, m_vulkanDevice.get());
+	if (!m_swapchain->Create(window))
+	{
+		std::cout << "Unable to create swapchain.\n";
+		return false;
+	}
 
 	return true;
 }
 
 void MxVulkan::Shutdown()
 {
-	Swapchain.reset();
-	VulkanDevice.reset();
+	m_swapchain.reset();
+	m_vulkanDevice.reset();
 
-	if (VulkanInstance && vkDestroyInstance)
+	if (m_vulkanInstance && vkDestroyInstance)
 	{
-		vkDestroyInstance(VulkanInstance, nullptr);
-		VulkanInstance = nullptr;
+		vkDestroyInstance(m_vulkanInstance, nullptr);
+		m_vulkanInstance = nullptr;
 	}
 
 	MxVulkanPlatform::ReleaseVulkanLibrary();

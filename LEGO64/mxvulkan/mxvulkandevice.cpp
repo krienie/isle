@@ -5,29 +5,29 @@
 #include <cassert>
 
 MxVulkanDevice::MxVulkanDevice(VkInstance InVulkanInstance)
-	: VulkanInstance(InVulkanInstance), PhysicalDevice()
+	: m_vulkanInstance(InVulkanInstance), m_physicalDevice()
 {
-	assert(VulkanInstance);
+	assert(m_vulkanInstance);
 }
 
 MxVulkanDevice::~MxVulkanDevice()
 {
-	vkDestroyDevice(VulkanDeviceInstance, nullptr);
-	VulkanDeviceInstance = nullptr;
+	vkDestroyDevice(m_vulkanDeviceInstance, nullptr);
+	m_vulkanDeviceInstance = nullptr;
 }
 
 bool MxVulkanDevice::Create()
 {
 	//TODO(KL): For completeness, we can integrate this device selection logic into the config app.
 	unsigned int PhysicalDeviceCount = 0;
-	VkResult Result = vkEnumeratePhysicalDevices(VulkanInstance, &PhysicalDeviceCount, nullptr);
+	VkResult Result = vkEnumeratePhysicalDevices(m_vulkanInstance, &PhysicalDeviceCount, nullptr);
 	if (Result != VK_SUCCESS || PhysicalDeviceCount == 0)
 	{
 		return false;
 	}
 
 	std::vector<VkPhysicalDevice> PhysicalDevices(PhysicalDeviceCount);
-	vkEnumeratePhysicalDevices(VulkanInstance, &PhysicalDeviceCount, PhysicalDevices.data());
+	vkEnumeratePhysicalDevices(m_vulkanInstance, &PhysicalDeviceCount, PhysicalDevices.data());
 
 	std::unordered_map<VkPhysicalDeviceType, std::pair<int, VkPhysicalDeviceProperties>> DeviceProperties;
 	DeviceProperties.reserve(PhysicalDeviceCount);
@@ -42,35 +42,35 @@ bool MxVulkanDevice::Create()
 	// We prefer discrete GPU over integrated GPU.
 	if (DeviceProperties.contains(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU))
 	{
-		PhysicalDevice = PhysicalDevices[DeviceProperties[VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU].first];
+		m_physicalDevice = PhysicalDevices[DeviceProperties[VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU].first];
 	}
 	else if (DeviceProperties.contains(VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU))
 	{
-		PhysicalDevice = PhysicalDevices[DeviceProperties[VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU].first];
+		m_physicalDevice = PhysicalDevices[DeviceProperties[VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU].first];
 	}
 	else
 	{
 		// If neither discrete of integrated GPU is available, just take whatever was found.
-		PhysicalDevice = PhysicalDevices[0];
+		m_physicalDevice = PhysicalDevices[0];
 	}
 
 	// Query queues. We are only interested in the graphics queue.
 	unsigned int QueueCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, &QueueCount, nullptr);
+	vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &QueueCount, nullptr);
 
 	std::vector<VkQueueFamilyProperties> QueueProperties(QueueCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, &QueueCount, QueueProperties.data());
+	vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &QueueCount, QueueProperties.data());
 
 	for (size_t i = 0; i < QueueProperties.size(); ++i)
 	{
 		if ((QueueProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT)
 		{
-			GraphicsQueueIndex = static_cast<int>(i);
+			m_graphicsQueueIndex = static_cast<int>(i);
 			break;
 		}
 	}
 
-	if (GraphicsQueueIndex < 0)
+	if (m_graphicsQueueIndex < 0)
 	{
 		std::cout << "No suitable Vulkan graphics queue found.\n";
 		return false;
@@ -83,7 +83,7 @@ bool MxVulkanDevice::Create()
 		VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 		nullptr,
 		0,
-		static_cast<unsigned int>(GraphicsQueueIndex),
+		static_cast<unsigned int>(m_graphicsQueueIndex),
 		1u,
 		&queuePriority
 	};
@@ -108,19 +108,19 @@ bool MxVulkanDevice::Create()
 		nullptr
 	};
 	
-	vkCreateDevice(PhysicalDevice, &DeviceCreateInfo, nullptr, &VulkanDeviceInstance);
+	vkCreateDevice(m_physicalDevice, &DeviceCreateInfo, nullptr, &m_vulkanDeviceInstance);
 
 	return true;
 }
 
 VkQueue MxVulkanDevice::GetGraphicsQueue() const
 {
-	if (GraphicsQueueIndex < 0)
+	if (m_graphicsQueueIndex < 0)
 	{
 		return nullptr;
 	}
 
 	VkQueue Queue;
-	vkGetDeviceQueue(VulkanDeviceInstance, GraphicsQueueIndex, 0, &Queue);
+	vkGetDeviceQueue(m_vulkanDeviceInstance, m_graphicsQueueIndex, 0, &Queue);
 	return Queue;
 }

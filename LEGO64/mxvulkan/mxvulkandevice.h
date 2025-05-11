@@ -11,14 +11,14 @@ public:
 	~MxVulkanDevice();
 
 	bool Create();
-	VkDevice GetDeviceInstance() const { return VulkanDeviceInstance; }
-	VkPhysicalDevice GetPhysicalDevice() const { return PhysicalDevice; }
+	VkDevice GetDeviceInstance() const { return m_vulkanDeviceInstance; }
+	VkPhysicalDevice GetPhysicalDevice() const { return m_physicalDevice; }
 	VkQueue GetGraphicsQueue() const;
 
 private:
-	VkInstance VulkanInstance = nullptr;
-	VkDevice VulkanDeviceInstance = nullptr;
-	VkPhysicalDevice PhysicalDevice;
+	VkInstance m_vulkanInstance = nullptr;
+	VkDevice m_vulkanDeviceInstance = nullptr;
+	VkPhysicalDevice m_physicalDevice;
 
-	int GraphicsQueueIndex = -1;
+	int m_graphicsQueueIndex = -1;
 };
