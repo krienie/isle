@@ -1,9 +1,10 @@
-#include "mxvulkanswapchain.h"
+#include "mxvulkanviewport.h"
 
 #include "mxvulkandevice.h"
 
 #include <algorithm>
 #include <iostream>
+#include <utility>
 
 namespace
 {
@@ -122,14 +123,14 @@ VkSurfaceFormatKHR GetSurfaceFormat(VkPhysicalDevice PhysicalDevice, VkSurfaceKH
 }
 }
 
-MxVulkanSwapchain::MxVulkanSwapchain(VkInstance InVulkanInstance, MxVulkanDevice* InVulkanDevice)
+MxVulkanViewport::MxVulkanViewport(VkInstance InVulkanInstance, MxVulkanDevice* InVulkanDevice)
 	: m_vulkanInstance(InVulkanInstance), m_vulkanDevice(InVulkanDevice)
 {
 	assert(m_vulkanInstance);
 	assert(m_vulkanDevice);
 }
 
-MxVulkanSwapchain::~MxVulkanSwapchain()
+MxVulkanViewport::~MxVulkanViewport()
 {
 	if (m_swapchain)
 	{
@@ -144,7 +145,28 @@ MxVulkanSwapchain::~MxVulkanSwapchain()
 	}
 }
 
-bool MxVulkanSwapchain::Create(SDL_Window* WindowHandle)
+MxVulkanViewport::AqcuiredBufferInfo MxVulkanViewport::GetNextBufferIndex()
+{
+	uint32_t nextBufferIndex = m_currentBufferIndex;
+
+	int32_t nextSemaphoreIndex = (m_currentBufferIndex + 1) % static_cast<int32_t>(m_imageSemaphores.size());
+	VkResult result = vkAcquireNextImageKHR(m_vulkanDevice->GetDeviceInstance(), m_swapchain, std::numeric_limits<uint64_t>::max(),
+											m_imageSemaphores[nextSemaphoreIndex]->GetHandle(), nullptr, &nextBufferIndex );
+
+	if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR)
+	{
+		m_currentBufferIndex = static_cast<int32_t>(nextBufferIndex);
+		return
+		{
+			.CurrentBufferIndex = m_currentBufferIndex,
+			.CurrentBufferSemaphore = m_imageSemaphores[m_currentBufferIndex].get()
+		};
+	}
+
+	return {.CurrentBufferIndex = -1, .CurrentBufferSemaphore = nullptr };
+}
+
+bool MxVulkanViewport::Create(SDL_Window* WindowHandle)
 {
 	m_surface = MxVulkanPlatform::CreateSurface(WindowHandle, m_vulkanInstance);
 	if (!m_surface)
@@ -230,7 +252,7 @@ bool MxVulkanSwapchain::Create(SDL_Window* WindowHandle)
 	return true;
 }
 
-void MxVulkanSwapchain::Present()
+void MxVulkanViewport::Present()
 {
 	//TODO(KL): Implement
 }

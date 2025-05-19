@@ -86,10 +86,10 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 
 	m_graphicsQueue = m_vulkanDevice->GetGraphicsQueue();
 
-	m_swapchain = std::make_unique<MxVulkanSwapchain>(m_vulkanInstance, m_vulkanDevice.get());
-	if (!m_swapchain->Create(window))
+	m_viewport = std::make_unique<MxVulkanViewport>(m_vulkanInstance, m_vulkanDevice.get());
+	if (!m_viewport->Create(window))
 	{
-		std::cout << "Unable to create swapchain.\n";
+		std::cout << "Unable to create viewport.\n";
 		return false;
 	}
 
@@ -98,7 +98,7 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 
 void MxVulkan::Shutdown()
 {
-	m_swapchain.reset();
+	m_viewport.reset();
 	m_vulkanDevice.reset();
 
 	if (m_vulkanInstance && vkDestroyInstance)

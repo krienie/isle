@@ -2,7 +2,7 @@
 
 #include "mxvulkandevice.h"
 #include "mxvulkanplatform.h"
-#include "mxvulkanswapchain.h"
+#include "MxVulkanViewport.h"
 
 #include <SDL2/SDL_video.h>
 
@@ -22,5 +22,5 @@ private:
 	VkQueue m_graphicsQueue = nullptr;
 
 	std::unique_ptr<MxVulkanDevice> m_vulkanDevice = nullptr;
-	std::unique_ptr<MxVulkanSwapchain> m_swapchain = nullptr;
+	std::unique_ptr<MxVulkanViewport> m_viewport = nullptr;
 };
