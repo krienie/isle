@@ -196,7 +196,7 @@ MxResult MxDisplaySurface::Create(MxVideoParam& p_videoParam)
 		ddsd.dwSize = sizeof(ddsd);
 		ddsd.dwBackBufferCount = m_videoParam.GetBackBuffers();
 		ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
-		ddsd.ddsCaps.dwCaps = DDSCAPS_3DDEVICE | DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
+		ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_3DDEVICE | DDSCAPS_COMPLEX;
 
 		if (lpDirectDraw->CreateSurface(&ddsd, &m_ddSurface1, NULL)) {
 			goto done;
@@ -1050,7 +1050,7 @@ LPDIRECTDRAWSURFACE MxDisplaySurface::CopySurface(LPDIRECTDRAWSURFACE p_src)
 
 	RECT rect = {0, 0, (LONG) ddsd.dwWidth, (LONG) ddsd.dwHeight};
 
-	if (newSurface->BltFast(0, 0, p_src, &rect, 16) != DD_OK) {
+	if (newSurface->BltFast(0, 0, p_src, &rect, DDBLTFAST_WAIT) != DD_OK) {
 		newSurface->Release();
 		return NULL;
 	}
@@ -1369,7 +1369,7 @@ void MxDisplaySurface::VTable0x2c(
 }
 
 // FUNCTION: LEGO1 0x100bc8b0
-LPDIRECTDRAWSURFACE MxDisplaySurface::FUN_100bc8b0(MxS32 width, MxS32 height)
+LPDIRECTDRAWSURFACE MxDisplaySurface::FUN_100bc8b0(MxS32 p_width, MxS32 p_height)
 {
 	LPDIRECTDRAWSURFACE surface = NULL;
 
@@ -1388,8 +1388,8 @@ LPDIRECTDRAWSURFACE MxDisplaySurface::FUN_100bc8b0(MxS32 width, MxS32 height)
 		return NULL;
 	}
 
-	surfaceDesc.dwWidth = width;
-	surfaceDesc.dwHeight = height;
+	surfaceDesc.dwWidth = p_width;
+	surfaceDesc.dwHeight = p_height;
 	surfaceDesc.dwFlags = DDSD_PIXELFORMAT | DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
 	surfaceDesc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_OFFSCREENPLAIN;
 

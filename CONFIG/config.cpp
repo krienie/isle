@@ -108,7 +108,7 @@ BOOL CConfigApp::InitInstance()
 // FUNCTION: CONFIG 0x00403100
 BOOL CConfigApp::IsLegoNotRunning()
 {
-	HWND hWnd = FindWindowA("Lego Island MainNoM App", "LEGO\xae");
+	HWND hWnd = FindWindow("Lego Island MainNoM App", "LEGO\xae");
 	if (_stricmp(afxCurrentAppName, "config") == 0 || !hWnd) {
 		return TRUE;
 	}
@@ -116,6 +116,88 @@ BOOL CConfigApp::IsLegoNotRunning()
 		ShowWindow(hWnd, SW_RESTORE);
 	}
 	return FALSE;
+}
+
+// FUNCTION: CONFIG 0x004031b0
+BOOL CConfigApp::WriteReg(const char* p_key, const char* p_value) const
+{
+	HKEY hKey;
+	DWORD pos;
+
+	if (RegCreateKeyEx(
+			HKEY_LOCAL_MACHINE,
+			"SOFTWARE\\Mindscape\\LEGO Island",
+			0,
+			"string",
+			0,
+			KEY_READ | KEY_WRITE,
+			NULL,
+			&hKey,
+			&pos
+		) == ERROR_SUCCESS) {
+		if (RegSetValueEx(hKey, p_key, 0, REG_SZ, (LPBYTE) p_value, strlen(p_value)) == ERROR_SUCCESS) {
+			if (RegCloseKey(hKey) == ERROR_SUCCESS) {
+				return TRUE;
+			}
+		}
+		else {
+			RegCloseKey(hKey);
+		}
+	}
+	return FALSE;
+}
+
+// FUNCTION: CONFIG 0x00403240
+BOOL CConfigApp::ReadReg(LPCSTR p_key, LPCSTR p_value, DWORD p_size) const
+{
+	HKEY hKey;
+	DWORD valueType;
+
+	BOOL out = FALSE;
+	DWORD size = p_size;
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Mindscape\\LEGO Island", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+		if (RegQueryValueEx(hKey, p_key, NULL, &valueType, (LPBYTE) p_value, &size) == ERROR_SUCCESS) {
+			if (RegCloseKey(hKey) == ERROR_SUCCESS) {
+				out = TRUE;
+			}
+		}
+	}
+	return out;
+}
+
+// FUNCTION: CONFIG 0x004032b0
+BOOL CConfigApp::ReadRegBool(LPCSTR p_key, BOOL* p_bool) const
+{
+	char buffer[256];
+
+	BOOL read = ReadReg(p_key, buffer, sizeof(buffer));
+	if (read) {
+		if (strcmp("YES", buffer) == 0) {
+			*p_bool = TRUE;
+			return read;
+		}
+
+		if (strcmp("NO", buffer) == 0) {
+			*p_bool = FALSE;
+			return read;
+		}
+
+		read = FALSE;
+	}
+	return read;
+}
+
+// FUNCTION: CONFIG 0x00403380
+BOOL CConfigApp::ReadRegInt(LPCSTR p_key, int* p_value) const
+{
+	char buffer[256];
+
+	BOOL read = ReadReg(p_key, buffer, sizeof(buffer));
+	if (read) {
+		*p_value = atoi(buffer);
+	}
+
+	return read;
 }
 
 // FUNCTION: CONFIG 0x004033d0
@@ -134,6 +216,64 @@ D3DCOLORMODEL CConfigApp::GetHardwareDeviceColorModel() const
 BOOL CConfigApp::IsPrimaryDriver() const
 {
 	return m_driver && m_driver == &m_device_enumerator->GetDriverList().front();
+}
+
+// FUNCTION: CONFIG 0x00403430
+BOOL CConfigApp::ReadRegisterSettings()
+{
+	char buffer[256];
+	BOOL is_modified = FALSE;
+	int tmp = -1;
+
+	if (ReadReg("3D Device ID", buffer, sizeof(buffer))) {
+		tmp = m_device_enumerator->ParseDeviceName(buffer);
+		if (tmp >= 0) {
+			tmp = m_device_enumerator->GetDevice(tmp, m_driver, m_device);
+		}
+	}
+	if (tmp != 0) {
+		is_modified = TRUE;
+		m_device_enumerator->FUN_1009d210();
+		tmp = m_device_enumerator->GetBestDevice();
+		m_device_enumerator->GetDevice(tmp, m_driver, m_device);
+	}
+	if (!ReadRegInt("Display Bit Depth", &m_display_bit_depth)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegBool("Flip Surfaces", &m_flip_surfaces)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegBool("Full Screen", &m_full_screen)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegBool("Back Buffers in Video RAM", &m_3d_video_ram)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegBool("Wide View Angle", &m_wide_view_angle)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegBool("3DSound", &m_3d_sound)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegBool("Draw Cursor", &m_draw_cursor)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegInt("Island Quality", &m_model_quality)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegInt("Island Texture", &m_texture_quality)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegBool("UseJoystick", &m_use_joystick)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegBool("Music", &m_music)) {
+		is_modified = TRUE;
+	}
+	if (!ReadRegInt("JoystickIndex", &m_joystick_index)) {
+		is_modified = TRUE;
+	}
+	return is_modified;
 }
 
 // FUNCTION: CONFIG 0x00403630
@@ -207,17 +347,17 @@ DWORD CConfigApp::GetConditionalDeviceRenderBitDepth() const
 	if (GetHardwareDeviceColorModel()) {
 		return 0;
 	}
-	return m_device->m_HELDesc.dwDeviceRenderBitDepth & 0x800;
+	return m_device->m_HELDesc.dwDeviceRenderBitDepth & DDBD_8;
 }
 
 // FUNCTION: CONFIG 0x004037e0
 DWORD CConfigApp::GetDeviceRenderBitStatus() const
 {
 	if (GetHardwareDeviceColorModel()) {
-		return m_device->m_HWDesc.dwDeviceRenderBitDepth & 0x400;
+		return m_device->m_HWDesc.dwDeviceRenderBitDepth & DDBD_16;
 	}
 	else {
-		return m_device->m_HELDesc.dwDeviceRenderBitDepth & 0x400;
+		return m_device->m_HELDesc.dwDeviceRenderBitDepth & DDBD_16;
 	}
 }
 

@@ -513,7 +513,7 @@ MxS32 LegoGameState::ReadVariable(LegoStorage* p_storage, MxVariableTable* p_to)
 	MxS32 result = 1;
 	MxU8 len;
 
-	if (p_storage->Read(&len, sizeof(len)) != SUCCESS) {
+	if (p_storage->Read(&len, sizeof(MxU8)) != SUCCESS) {
 		goto done;
 	}
 
@@ -531,7 +531,7 @@ MxS32 LegoGameState::ReadVariable(LegoStorage* p_storage, MxVariableTable* p_to)
 		goto done;
 	}
 
-	if (p_storage->Read(&len, sizeof(len)) != SUCCESS) {
+	if (p_storage->Read(&len, sizeof(MxU8)) != SUCCESS) {
 		goto done;
 	}
 
@@ -1303,7 +1303,7 @@ void LegoBackgroundColor::ToggleSkyColor()
 // FUNCTION: BETA10 0x10086984
 void LegoBackgroundColor::SetLightColor(float p_r, float p_g, float p_b)
 {
-	if (!VideoManager()->GetVideoParam().Flags().GetF2bit0()) {
+	if (!VideoManager()->GetVideoParam().Flags().GetLacksLightSupport()) {
 		// TODO: Computed constants based on what?
 		p_r *= 1. / 0.23;
 		p_g *= 1. / 0.63;
