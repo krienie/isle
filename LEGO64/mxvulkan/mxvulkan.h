@@ -19,7 +19,6 @@ public:
 
 private:
 	VkInstance m_vulkanInstance = nullptr;
-	VkQueue m_graphicsQueue = nullptr;
 
 	std::unique_ptr<MxVulkanDevice> m_vulkanDevice = nullptr;
 	std::unique_ptr<MxVulkanViewport> m_viewport = nullptr;

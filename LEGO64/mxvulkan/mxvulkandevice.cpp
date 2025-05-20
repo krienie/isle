@@ -110,17 +110,7 @@ bool MxVulkanDevice::Create()
 	
 	vkCreateDevice(m_physicalDevice, &DeviceCreateInfo, nullptr, &m_vulkanDeviceInstance);
 
+	vkGetDeviceQueue(m_vulkanDeviceInstance, m_graphicsQueueIndex, 0, &m_graphicsQueue);
+
 	return true;
-}
-
-VkQueue MxVulkanDevice::GetGraphicsQueue() const
-{
-	if (m_graphicsQueueIndex < 0)
-	{
-		return nullptr;
-	}
-
-	VkQueue Queue;
-	vkGetDeviceQueue(m_vulkanDeviceInstance, m_graphicsQueueIndex, 0, &Queue);
-	return Queue;
 }

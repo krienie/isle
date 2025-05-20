@@ -84,8 +84,6 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 		return false;
 	}
 
-	m_graphicsQueue = m_vulkanDevice->GetGraphicsQueue();
-
 	m_viewport = std::make_unique<MxVulkanViewport>(m_vulkanInstance, m_vulkanDevice.get());
 	if (!m_viewport->Create(window))
 	{

@@ -13,12 +13,14 @@ public:
 	bool Create();
 	VkDevice GetDeviceInstance() const { return m_vulkanDeviceInstance; }
 	VkPhysicalDevice GetPhysicalDevice() const { return m_physicalDevice; }
-	VkQueue GetGraphicsQueue() const;
+	VkQueue GetGraphicsQueue() const { return m_graphicsQueue; }
 
 private:
 	VkInstance m_vulkanInstance = nullptr;
 	VkDevice m_vulkanDeviceInstance = nullptr;
 	VkPhysicalDevice m_physicalDevice;
+
+	VkQueue m_graphicsQueue = nullptr;
 
 	int m_graphicsQueueIndex = -1;
 };

@@ -254,5 +254,19 @@ bool MxVulkanViewport::Create(SDL_Window* WindowHandle)
 
 void MxVulkanViewport::Present()
 {
-	//TODO(KL): Implement
+	VkSemaphore Semaphore = m_imageSemaphores[m_currentBufferIndex]->GetHandle();
+
+	VkPresentInfoKHR presentInfo =
+	{
+		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		nullptr,
+		1u,
+		&Semaphore,
+		1u,
+		&m_swapchain,
+		reinterpret_cast<uint32_t*>(&m_currentBufferIndex),
+		nullptr
+	};
+
+	VkResult result = vkQueuePresentKHR(m_vulkanDevice->GetGraphicsQueue(), &presentInfo );
 }
