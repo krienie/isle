@@ -1,4 +1,4 @@
-#include "legovideomanager.h"
+#include "video/legovideomanager.h"
 
 LegoVideoManager::~LegoVideoManager()
 {
@@ -7,22 +7,29 @@ LegoVideoManager::~LegoVideoManager()
 
 MxResult LegoVideoManager::Tickle()
 {
-	//TODO(KL): Implement
+	m_renderWindow->draw();
+
 	return MxVideoManager::Tickle();
 }
 
 void LegoVideoManager::Destroy()
 {
-	mVulkanRHI.reset();
-	//MxVideoManager::Destroy();
+	m_renderWindow.reset();
+	RenderThread::Shutdown();
+	MxVideoManager::Destroy();
 }
 
 MxResult LegoVideoManager::Create(MxVideoParam& p_videoParam, MxU32 p_frequencyMS, MxBool p_createThread)
 {
-	mVulkanRHI = std::make_unique<MxVulkan>();
-	bool Success = mVulkanRHI->InitForWindow(p_videoParam.GetWindowHandle());
+	RenderThread::Startup(p_videoParam.GetSDLWindowHandle());
 
-	return Success ? SUCCESS : FAILURE;
+	if (RenderThread::Get()->IsRunning())
+	{
+		m_renderWindow = std::make_unique<RenderWindow>(p_videoParam.GetSDLWindowHandle());
+		return SUCCESS;
+	}
+
+	return FAILURE;
 }
 
 /*#include "3dmanager/lego3dmanager.h"

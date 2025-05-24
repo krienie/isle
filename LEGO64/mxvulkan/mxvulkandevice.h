@@ -14,6 +14,7 @@ public:
 	VkDevice GetDeviceInstance() const { return m_vulkanDeviceInstance; }
 	VkPhysicalDevice GetPhysicalDevice() const { return m_physicalDevice; }
 	VkQueue GetGraphicsQueue() const { return m_graphicsQueue; }
+	int32_t GetGraphicsQueueIndex() const { return m_graphicsQueueIndex; }
 
 private:
 	VkInstance m_vulkanInstance = nullptr;
@@ -22,5 +23,5 @@ private:
 
 	VkQueue m_graphicsQueue = nullptr;
 
-	int m_graphicsQueueIndex = -1;
+	int32_t m_graphicsQueueIndex = -1;
 };

@@ -41,7 +41,7 @@ public:
 	void SetBackBuffers(MxU32 p_backBuffers) { m_backBuffers = p_backBuffers; }
 
 	void SetWindowHandle(SDL_Window* p_windowHandle) { m_windowHandle = p_windowHandle; }
-	SDL_Window* GetWindowHandle() const { return m_windowHandle; }
+	SDL_Window* GetSDLWindowHandle() const { return m_windowHandle; }
 
 private:
 	SDL_Window* m_windowHandle;

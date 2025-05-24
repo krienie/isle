@@ -12,7 +12,7 @@
 //#include "legosoundmanager.h"
 //#include "legoutils.h"
 //#include "legovariables.h"
-#include "legovideomanager.h"
+#include "video/legovideomanager.h"
 //#include "legoworld.h"
 //#include "legoworldlist.h"
 //#include "misc.h"
@@ -184,7 +184,7 @@ MxResult LegoOmni::Create(MxOmniCreateParam& p_param)
 		return result;
 	}
 	
-	//if (!(m_inputManager = new LegoInputManager()) || m_inputManager->Create(p_param.GetWindowHandle()) != SUCCESS) {
+	//if (!(m_inputManager = new LegoInputManager()) || m_inputManager->Create(p_param.GetSDLWindowHandle()) != SUCCESS) {
 	//	delete m_inputManager;
 	//	m_inputManager = NULL;
 	//	return result;

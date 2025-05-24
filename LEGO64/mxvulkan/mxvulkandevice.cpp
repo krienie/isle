@@ -83,7 +83,7 @@ bool MxVulkanDevice::Create()
 		VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 		nullptr,
 		0,
-		static_cast<unsigned int>(m_graphicsQueueIndex),
+		static_cast<uint32_t>(m_graphicsQueueIndex),
 		1u,
 		&queuePriority
 	};

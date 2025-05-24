@@ -1,23 +1,18 @@
 
-#include "mxvulkan.h"
+#include "MxVulkanRHI.h"
 
-#include <glm/glm.hpp>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL_vulkan.h>
 
-#include <algorithm>
 #include <iostream>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
-MxVulkan::~MxVulkan()
+MxVulkanRHI::~MxVulkanRHI()
 {
 	Shutdown();
 }
 
-bool MxVulkan::InitForWindow(SDL_Window* window)
+bool MxVulkanRHI::InitForWindow(SDL_Window* window)
 {
 	if (!MxVulkanPlatform::LoadVulkanLibrary())
 	{
@@ -84,19 +79,11 @@ bool MxVulkan::InitForWindow(SDL_Window* window)
 		return false;
 	}
 
-	m_viewport = std::make_unique<MxVulkanViewport>(m_vulkanInstance, m_vulkanDevice.get());
-	if (!m_viewport->Create(window))
-	{
-		std::cout << "Unable to create viewport.\n";
-		return false;
-	}
-
 	return true;
 }
 
-void MxVulkan::Shutdown()
+void MxVulkanRHI::Shutdown()
 {
-	m_viewport.reset();
 	m_vulkanDevice.reset();
 
 	if (m_vulkanInstance && vkDestroyInstance)

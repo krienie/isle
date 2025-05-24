@@ -11,7 +11,7 @@
 //#include "legomodelpresenter.h"
 //#include "legopartpresenter.h"
 //#include "legoutils.h"
-#include "legovideomanager.h"
+#include "video/legovideomanager.h"
 //#include "legoworldpresenter.h"
 #include "misc.h"
 #include "mxbackgroundaudiomanager.h"

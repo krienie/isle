@@ -1,8 +1,9 @@
 #pragma once
 
+#include "RenderThread.h"
 #include "legophonemelist.h"
 #include "mxvideomanager.h"
-#include "mxvulkan/mxvulkan.h"
+#include "renderwindow.h"
 
 #include <memory>
 
@@ -17,7 +18,7 @@ public:
 	MxResult Create(MxVideoParam& p_videoParam, MxU32 p_frequencyMS, MxBool p_createThread) override;
 
 private:
-	std::unique_ptr<MxVulkan> mVulkanRHI;
+	std::unique_ptr<RenderWindow> m_renderWindow;
 };
 
 /*#include "decomp.h"
