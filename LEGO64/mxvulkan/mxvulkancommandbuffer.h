@@ -15,6 +15,7 @@ public:
 
 	void Begin() const;
 	void End() const;
+	void Reset() const;
 
 private:
 	MxVulkanDevice* m_vulkanDevice = nullptr;

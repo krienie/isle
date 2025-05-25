@@ -57,3 +57,9 @@ void MxVulkanCommandBuffer::End() const
 	VkResult result = vkEndCommandBuffer(m_commandBufferHandle);
 	assert(result == VK_SUCCESS);
 }
+
+void MxVulkanCommandBuffer::Reset() const
+{
+	VkResult result = vkResetCommandBuffer(m_commandBufferHandle, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+	assert(result == VK_SUCCESS);
+}
