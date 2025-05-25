@@ -13,8 +13,6 @@ CommandThread::CommandThread(unsigned int numWorkerThreads)
 
 CommandThread::~CommandThread()
 {
-	Flush();
-
 	{
 		std::lock_guard lock(m_enqueueMutex);
 		m_running = false;
