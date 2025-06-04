@@ -12,14 +12,14 @@
 #include "mxflcpresenter.h"
 #include "mxloopingflcpresenter.h"
 #include "mxloopingmidipresenter.h"
-//#include "mxloopingsmkpresenter.h"
+#include "mxloopingsmkpresenter.h"
 #include "mxmidipresenter.h"
 #include "mxmisc.h"
 #include "mxnotificationmanager.h"
 #include "mxobjectfactory.h"
 #include "mxomni.h"
 #include "mxparam.h"
-//#include "mxsmkpresenter.h"
+#include "mxsmkpresenter.h"
 #include "mxstillpresenter.h"
 #include "mxstreamer.h"
 #include "mxutilities.h"
@@ -199,10 +199,8 @@ const char* PresenterNameDispatch(const MxDSAction& p_action)
 											 : MxLoopingFlcPresenter::HandlerClassName();
 				break;
 			case FOURCC(' ', 'S', 'M', 'K'):
-				//TODO(KL): Not implemented
-				assert(false);
-			//	name = !p_action.IsLooping() ? MxSmkPresenter::HandlerClassName()
-			//								 : MxLoopingSmkPresenter::HandlerClassName();
+				name = !p_action.IsLooping() ? MxSmkPresenter::HandlerClassName()
+											 : MxLoopingSmkPresenter::HandlerClassName();
 				break;
 			}
 			break;

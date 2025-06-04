@@ -1,9 +1,9 @@
 #include "mxtransitionmanager.h"
 
-//#include "legoinputmanager.h"
-//#include "legoutils.h"
-//#include "legovideomanager.h"
-//#include "legoworld.h"
+#include "legoinputmanager.h"
+#include "legoutils.h"
+#include "legovideomanager.h"
+#include "legoworld.h"
 #include "misc.h"
 #include "mxbackgroundaudiomanager.h"
 #include "mxdisplaysurface.h"
@@ -11,8 +11,6 @@
 #include "mxparam.h"
 #include "mxticklemanager.h"
 #include "mxvideopresenter.h"
-
-#include <cassert>
 
 DECOMP_SIZE_ASSERT(MxTransitionManager, 0x900)
 
@@ -49,7 +47,7 @@ MxTransitionManager::~MxTransitionManager()
 MxResult MxTransitionManager::GetDDrawSurfaceFromVideoManager() // vtable+0x14
 {
 	LegoVideoManager* videoManager = VideoManager();
-	//m_ddSurface = videoManager->GetDisplaySurface()->GetDirectDrawSurface2();
+	m_ddSurface = videoManager->GetDisplaySurface()->GetDirectDrawSurface2();
 	return SUCCESS;
 }
 
@@ -123,14 +121,14 @@ MxResult MxTransitionManager::StartTransition(
 		MxTickleManager* tickleManager = TickleManager();
 		tickleManager->RegisterClient(this, p_speed);
 
-		//LegoInputManager* inputManager = InputManager();
-		//inputManager->SetUnknown88(TRUE);
-		//inputManager->SetUnknown336(FALSE);
-		//
-		//LegoVideoManager* videoManager = VideoManager();
-		//videoManager->SetRender3D(FALSE);
+		LegoInputManager* inputManager = InputManager();
+		inputManager->SetUnknown88(TRUE);
+		inputManager->SetUnknown336(FALSE);
 
-		//SetAppCursor(e_cursorBusy);
+		LegoVideoManager* videoManager = VideoManager();
+		videoManager->SetRender3D(FALSE);
+
+		SetAppCursor(e_cursorBusy);
 		return SUCCESS;
 	}
 	return FAILURE;
@@ -152,8 +150,8 @@ void MxTransitionManager::EndTransition(MxBool p_notifyWorld)
 			if (world) {
 #ifdef COMPAT_MODE
 				{
-					//MxNotificationParam param(c_notificationTransitioned, this);
-					//world->Notify(param);
+					MxNotificationParam param(c_notificationTransitioned, this);
+					world->Notify(param);
 				}
 #else
 				world->Notify(MxNotificationParam(c_notificationTransitioned, this));
@@ -167,7 +165,7 @@ void MxTransitionManager::EndTransition(MxBool p_notifyWorld)
 void MxTransitionManager::NoTransition()
 {
 	LegoVideoManager* videoManager = VideoManager();
-	//videoManager->GetDisplaySurface()->ClearScreen();
+	videoManager->GetDisplaySurface()->ClearScreen();
 	EndTransition(TRUE);
 }
 
@@ -248,10 +246,10 @@ void MxTransitionManager::DissolveTransition()
 		SetupCopyRect(&ddsd);
 		m_ddSurface->Unlock(ddsd.lpSurface);
 
-		//if (VideoManager()->GetVideoParam().Flags().GetFlipSurfaces()) {
-		//	LPDIRECTDRAWSURFACE surf = VideoManager()->GetDisplaySurface()->GetDirectDrawSurface1();
-		//	surf->BltFast(0, 0, m_ddSurface, &g_fullScreenRect, DDBLTFAST_WAIT);
-		//}
+		if (VideoManager()->GetVideoParam().Flags().GetFlipSurfaces()) {
+			LPDIRECTDRAWSURFACE surf = VideoManager()->GetDisplaySurface()->GetDirectDrawSurface1();
+			surf->BltFast(0, 0, m_ddSurface, &g_fullScreenRect, DDBLTFAST_WAIT);
+		}
 
 		m_animationTimer++;
 	}
@@ -293,10 +291,10 @@ void MxTransitionManager::MosaicTransition()
 		memset(&ddsd, 0, sizeof(ddsd));
 		ddsd.dwSize = sizeof(ddsd);
 
-		HRESULT res = m_ddSurface->Lock(NULL, &ddsd, 1, NULL);
+		HRESULT res = m_ddSurface->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 		if (res == DDERR_SURFACELOST) {
 			m_ddSurface->Restore();
-			res = m_ddSurface->Lock(NULL, &ddsd, 1, NULL);
+			res = m_ddSurface->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
 		}
 
 		if (res == DD_OK) {
@@ -351,10 +349,10 @@ void MxTransitionManager::MosaicTransition()
 			SetupCopyRect(&ddsd);
 			m_ddSurface->Unlock(ddsd.lpSurface);
 
-			//if (VideoManager()->GetVideoParam().Flags().GetFlipSurfaces()) {
-			//	LPDIRECTDRAWSURFACE surf = VideoManager()->GetDisplaySurface()->GetDirectDrawSurface1();
-			//	surf->BltFast(0, 0, m_ddSurface, &g_fullScreenRect, DDBLTFAST_WAIT);
-			//}
+			if (VideoManager()->GetVideoParam().Flags().GetFlipSurfaces()) {
+				LPDIRECTDRAWSURFACE surf = VideoManager()->GetDisplaySurface()->GetDirectDrawSurface1();
+				surf->BltFast(0, 0, m_ddSurface, &g_fullScreenRect, DDBLTFAST_WAIT);
+			}
 
 			m_animationTimer++;
 		}
@@ -487,7 +485,7 @@ void MxTransitionManager::SetWaitIndicator(MxVideoPresenter* p_waitIndicator)
 		m_waitIndicator = p_waitIndicator;
 
 		LegoVideoManager* videoManager = VideoManager();
-		//videoManager->UnregisterPresenter(*m_waitIndicator);
+		videoManager->UnregisterPresenter(*m_waitIndicator);
 
 		if (m_waitIndicator->GetCurrentTickleState() < MxPresenter::e_streaming) {
 			m_waitIndicator->Tickle();
@@ -578,32 +576,32 @@ void MxTransitionManager::SetupCopyRect(LPDDSURFACEDESC p_ddsc)
 	}
 
 	// Setup display surface
-	//if ((m_waitIndicator->GetAction()->GetFlags() & MxDSAction::c_bit5) != 0) {
-	//	MxDisplaySurface* displaySurface = VideoManager()->GetDisplaySurface();
-	//	MxBool und = FALSE;
-	//	displaySurface->VTable0x2c(
-	//		p_ddsc,
-	//		m_waitIndicator->GetBitmap(),
-	//		0,
-	//		0,
-	//		m_waitIndicator->GetLocation().GetX(),
-	//		m_waitIndicator->GetLocation().GetY(),
-	//		m_waitIndicator->GetWidth(),
-	//		m_waitIndicator->GetHeight(),
-	//		und
-	//	);
-	//}
-	//else {
-	//	MxDisplaySurface* displaySurface = VideoManager()->GetDisplaySurface();
-	//	displaySurface->VTable0x24(
-	//		p_ddsc,
-	//		m_waitIndicator->GetBitmap(),
-	//		0,
-	//		0,
-	//		m_waitIndicator->GetLocation().GetX(),
-	//		m_waitIndicator->GetLocation().GetY(),
-	//		m_waitIndicator->GetWidth(),
-	//		m_waitIndicator->GetHeight()
-	//	);
-	//}
+	if ((m_waitIndicator->GetAction()->GetFlags() & MxDSAction::c_bit5) != 0) {
+		MxDisplaySurface* displaySurface = VideoManager()->GetDisplaySurface();
+		MxBool und = FALSE;
+		displaySurface->VTable0x2c(
+			p_ddsc,
+			m_waitIndicator->GetBitmap(),
+			0,
+			0,
+			m_waitIndicator->GetLocation().GetX(),
+			m_waitIndicator->GetLocation().GetY(),
+			m_waitIndicator->GetWidth(),
+			m_waitIndicator->GetHeight(),
+			und
+		);
+	}
+	else {
+		MxDisplaySurface* displaySurface = VideoManager()->GetDisplaySurface();
+		displaySurface->VTable0x24(
+			p_ddsc,
+			m_waitIndicator->GetBitmap(),
+			0,
+			0,
+			m_waitIndicator->GetLocation().GetX(),
+			m_waitIndicator->GetLocation().GetY(),
+			m_waitIndicator->GetWidth(),
+			m_waitIndicator->GetHeight()
+		);
+	}
 }

@@ -9,15 +9,14 @@
 	X(MxCompositePresenter)                                                                                            \
 	X(MxVideoPresenter)                                                                                                \
 	X(MxFlcPresenter)                                                                                                  \
+	X(MxSmkPresenter)                                                                                                  \
 	X(MxStillPresenter)                                                                                                \
 	X(MxWavePresenter)                                                                                                 \
 	X(MxMIDIPresenter)                                                                                                 \
 	X(MxEventPresenter)                                                                                                \
 	X(MxLoopingFlcPresenter)                                                                                           \
+	X(MxLoopingSmkPresenter)                                                                                           \
 	X(MxLoopingMIDIPresenter)
-
-	//X(MxSmkPresenter)                                                                                                  \
-	//X(MxLoopingSmkPresenter)                                                                                           \
 
 // VTABLE: LEGO1 0x100dc220
 // VTABLE: BETA10 0x101c2280

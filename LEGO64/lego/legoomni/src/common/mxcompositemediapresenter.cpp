@@ -1,7 +1,7 @@
 #include "mxcompositemediapresenter.h"
 
-//#include "legosoundmanager.h"
-//#include "legovideomanager.h"
+#include "legosoundmanager.h"
+#include "legovideomanager.h"
 #include "misc.h"
 #include "mxautolock.h"
 #include "mxdsmultiaction.h"
@@ -17,13 +17,13 @@ MxCompositeMediaPresenter::MxCompositeMediaPresenter()
 {
 	m_unk0x4c = 0;
 	m_unk0x4e = FALSE;
-	//VideoManager()->RegisterPresenter(*this);
+	VideoManager()->RegisterPresenter(*this);
 }
 
 // FUNCTION: LEGO1 0x10074020
 MxCompositeMediaPresenter::~MxCompositeMediaPresenter()
 {
-	//VideoManager()->UnregisterPresenter(*this);
+	VideoManager()->UnregisterPresenter(*this);
 }
 
 // FUNCTION: LEGO1 0x10074090
@@ -62,10 +62,10 @@ MxResult MxCompositeMediaPresenter::StartAction(MxStreamController* p_controller
 					presenter->SetTickleState(e_idle);
 
 					if (presenter->IsA("MxVideoPresenter")) {
-						//VideoManager()->UnregisterPresenter(*presenter);
+						VideoManager()->UnregisterPresenter(*presenter);
 					}
 					else if (presenter->IsA("MxAudioPresenter")) {
-						//SoundManager()->UnregisterPresenter(*presenter);
+						SoundManager()->UnregisterPresenter(*presenter);
 					}
 
 					success = TRUE;
@@ -144,7 +144,7 @@ MxResult MxCompositeMediaPresenter::Tickle()
 {
 	AUTOLOCK(m_criticalSection);
 
-	switch (m_currentTickleState) {
+	switch (GetCurrentTickleState()) {
 	case e_ready:
 		ProgressTickleState(e_starting);
 	case e_starting:

@@ -151,16 +151,27 @@ function(add_lego_libraries NAME)
   set_property(TARGET viewmanager${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "viewmanager$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(viewmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(viewmanager${ARG_SUFFIX} PRIVATE Vec::Vec)
-
-  #TODO(KL): Make Vulkan version of this for BUILD_FOR_MODERN_OS
-  file(GLOB_RECURSE mxdirectxSrc
-        "LEGO1/mxdirectx/*.cpp"
-        "LEGO1/mxdirectx/*.h")
-  add_library(mxdirectx${ARG_SUFFIX} STATIC ${mxdirectxSrc})
-  list(APPEND list_targets mxdirectx${ARG_SUFFIX})
-  set_property(TARGET mxdirectx${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "MxDirectX$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(mxdirectx${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
-  target_link_libraries(mxdirectx${ARG_SUFFIX} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:ddraw>)
+  
+  if (BUILD_FOR_MODERN_OS)
+    file(GLOB_RECURSE mxvulkanSrc
+          "LEGO64/mxvulkan/*.cpp"
+          "LEGO64/mxvulkan/*.h")
+    add_library(mxvulkan${ARG_SUFFIX} STATIC ${mxvulkanSrc})
+    list(APPEND list_targets mxvulkan)
+    set_property(TARGET mxvulkan${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "MxVulkan$<$<CONFIG:Debug>:d>")
+    target_include_directories(mxvulkan${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO64" "${PROJECT_SOURCE_DIR}/util")
+    target_include_directories(mxvulkan${ARG_SUFFIX} PRIVATE ${Vulkan_INCLUDE_DIRS})
+    target_link_libraries(mxvulkan${ARG_SUFFIX} PRIVATE Vulkan-1)
+  else()
+    file(GLOB_RECURSE mxdirectxSrc
+          "LEGO1/mxdirectx/*.cpp"
+          "LEGO1/mxdirectx/*.h")
+    add_library(mxdirectx${ARG_SUFFIX} STATIC ${mxdirectxSrc})
+    list(APPEND list_targets mxdirectx${ARG_SUFFIX})
+    set_property(TARGET mxdirectx${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "MxDirectX$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
+    target_include_directories(mxdirectx${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+    target_link_libraries(mxdirectx${ARG_SUFFIX} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:ddraw>)
+  endif()
 
   file(GLOB_RECURSE roiSrc
         "LEGO1/lego/sources/roi/*.cpp"
@@ -270,7 +281,6 @@ function(add_lego_libraries NAME)
     dinput
     misc${ARG_SUFFIX}
     geom${ARG_SUFFIX}
-    mxdirectx${ARG_SUFFIX}
     anim${ARG_SUFFIX}
     tglrl${ARG_SUFFIX}
     realtime${ARG_SUFFIX}
@@ -282,13 +292,21 @@ function(add_lego_libraries NAME)
     Vec::Vec
     dxguid
   )
+  
+  if (BUILD_FOR_MODERN_OS)
+    target_link_libraries(${NAME} PRIVATE mxvulkan${ARG_SUFFIX})
+  else()
+    target_link_libraries(${NAME} PRIVATE mxdirectx${ARG_SUFFIX})
+  endif()
 
   foreach(tgt IN LISTS list_targets)
     target_link_libraries(${tgt} PRIVATE ${ARG_LINK_LIBRARIES})
-    target_link_libraries(${tgt} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
-    target_compile_definitions(${tgt} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DIRECTX5_SDK>)
     if (BUILD_FOR_MODERN_OS)
+      target_include_directories(${tgt} PRIVATE ${SDL2_INCLUDE_DIRS})
       target_compile_definitions(${tgt} PRIVATE BUILD_FOR_MODERN_OS NOMINMAX)
+    else()
+      target_compile_definitions(${tgt} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DIRECTX5_SDK>)
+      target_link_libraries(${tgt} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
     endif()
     install(TARGETS ${tgt} DESTINATION .)
   endforeach()
@@ -307,6 +325,15 @@ function(add_lego64_libraries NAME)
   set(list_targets )
 
   set(SUFFIX "${ARG_SUFFIX}")
+  
+  file(GLOB_RECURSE tglrlSrc
+        "LEGO1/tgl/*.cpp"
+        "LEGO1/tgl/*.h")
+  add_library(tglrl STATIC ${tglrlSrc})
+  list(APPEND list_targets tglrl)
+  set_property(TARGET tglrl PROPERTY ARCHIVE_OUTPUT_NAME "tglrl40$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
+  target_include_directories(tglrl PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+  target_link_libraries(tglrl PRIVATE d3drm)
 
   file(GLOB_RECURSE mxvulkanSrc
         "LEGO64/mxvulkan/*.cpp"
@@ -326,6 +353,15 @@ function(add_lego64_libraries NAME)
   set_property(TARGET realtime${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "realtime$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
   target_include_directories(realtime${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(realtime${ARG_SUFFIX} PRIVATE Vec::Vec)
+  
+  file(GLOB_RECURSE viewmanagerSrc
+        "LEGO1/viewmanager/*.cpp"
+        "LEGO1/viewmanager/*.h")
+  add_library(viewmanager${ARG_SUFFIX} STATIC ${viewmanagerSrc})
+  list(APPEND list_targets viewmanager${ARG_SUFFIX})
+  set_property(TARGET viewmanager${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "viewmanager$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
+  target_include_directories(viewmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+  target_link_libraries(viewmanager${ARG_SUFFIX} PRIVATE Vec::Vec)
 
   file(GLOB_RECURSE omniSrc "LEGO64/omni/*.cpp")
   file(GLOB_RECURSE omniInc "LEGO64/omni/*.h")
@@ -365,7 +401,7 @@ function(add_lego64_libraries NAME)
   target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/util")
   target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64")
   target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/omni/include")
-  #target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/sources")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/sources")
   target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/include")
   target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/include/actions")
 
@@ -398,22 +434,15 @@ if (ISLE_USE_SMARTHEAP)
 endif()
 
 if(ISLE_BUILD_LEGO1)
-  if (BUILD_FOR_MODERN_OS)
-    add_lego64_libraries(lego1
-      LINK_LIBRARIES ${lego1_link_libraries}
-      DLL_OUTPUT_NAME "LEGO1"
-      DLL_PREFIX ""
-      DLL_SUFFIX ".lib"
-      OUT_TARGETS lego1_targets
-    )
-  else()
-    add_lego_libraries(lego1
-      LINK_LIBRARIES ${lego1_link_libraries}
-      DLL_OUTPUT_NAME "LEGO1"
-      DLL_PREFIX ""
-      DLL_SUFFIX ".DLL"
-      OUT_TARGETS lego1_targets
-    )
+  add_lego_libraries(lego1
+    LINK_LIBRARIES ${lego1_link_libraries}
+    DLL_OUTPUT_NAME "LEGO1"
+    DLL_PREFIX ""
+    DLL_SUFFIX ".DLL"
+    OUT_TARGETS lego1_targets
+  )
+
+  if (NOT BUILD_FOR_MODERN_OS)
     reccmp_add_target(lego1 ID LEGO1)
   endif()
 endif()

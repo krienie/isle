@@ -1,15 +1,13 @@
 #include "misc.h"
 
-//#include "3dmanager/lego3dmanager.h"
-//#include "legoinputmanager.h"
+#include "3dmanager/lego3dmanager.h"
+#include "legoinputmanager.h"
 #include "legomain.h"
-//#include "legovideomanager.h"
+#include "legovideomanager.h"
 #include "mxbackgroundaudiomanager.h"
 #include "mxmisc.h"
-//#include "roi/legoroi.h"
+#include "roi/legoroi.h"
 #include "scripts.h"
-
-#include <cassert>
 
 // GLOBAL: LEGO1 0x100f4c58
 MxBool g_isWorldActive = TRUE;
@@ -55,8 +53,7 @@ LegoInputManager* InputManager()
 LegoControlManager* ControlManager()
 {
 	assert(LegoOmni::GetInstance());
-	return nullptr;
-	//return LegoOmni::GetInstance()->GetInputManager()->GetControlManager();
+	return LegoOmni::GetInstance()->GetInputManager()->GetControlManager();
 }
 
 // FUNCTION: LEGO1 0x10015760
@@ -110,8 +107,7 @@ LegoCharacterManager* CharacterManager()
 // FUNCTION: LEGO1 0x100157c0
 ViewManager* GetViewManager()
 {
-	return nullptr;
-	//return VideoManager()->Get3DManager()->GetLego3DView()->GetViewManager();
+	return VideoManager()->Get3DManager()->GetLego3DView()->GetViewManager();
 }
 
 // FUNCTION: LEGO1 0x100157e0
@@ -161,11 +157,11 @@ LegoROI* FindROI(const char* p_name)
 // FUNCTION: LEGO1 0x10015860
 void SetROIVisible(const char* p_name, MxBool p_visible)
 {
-	//LegoROI* roi = FindROI(p_name);
-	//
-	//if (roi) {
-	//	roi->SetVisibility(p_visible);
-	//}
+	LegoROI* roi = FindROI(p_name);
+
+	if (roi) {
+		roi->SetVisibility(p_visible);
+	}
 }
 
 // FUNCTION: LEGO1 0x10015880
@@ -216,8 +212,11 @@ MxTransitionManager* TransitionManager()
 }
 
 // FUNCTION: LEGO1 0x10015910
+// FUNCTION: BETA10 0x100e4f4c
 void PlayMusic(JukeboxScript::Script p_objectId)
 {
+	assert(LegoOmni::GetInstance());
+
 	MxDSAction action;
 	action.SetAtomId(*g_jukeboxScript);
 	action.SetObjectId(p_objectId);
@@ -228,10 +227,10 @@ void PlayMusic(JukeboxScript::Script p_objectId)
 // FUNCTION: LEGO1 0x100159c0
 void SetIsWorldActive(MxBool p_isWorldActive)
 {
-	//if (!p_isWorldActive) {
-	//	LegoOmni::GetInstance()->GetInputManager()->SetCamera(NULL);
-	//}
-	//g_isWorldActive = p_isWorldActive;
+	if (!p_isWorldActive) {
+		LegoOmni::GetInstance()->GetInputManager()->SetCamera(NULL);
+	}
+	g_isWorldActive = p_isWorldActive;
 }
 
 // FUNCTION: LEGO1 0x100159e0

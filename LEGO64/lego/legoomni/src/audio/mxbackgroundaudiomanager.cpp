@@ -12,6 +12,8 @@
 #include "mxticklemanager.h"
 #include "mxutilities.h"
 
+DECOMP_SIZE_ASSERT(MxBackgroundAudioManager, 0x150)
+
 // FUNCTION: LEGO1 0x1007ea90
 MxBackgroundAudioManager::MxBackgroundAudioManager()
 {
@@ -161,6 +163,7 @@ void MxBackgroundAudioManager::FUN_1007ef40()
 }
 
 // FUNCTION: LEGO1 0x1007f0e0
+// FUNCTION: BETA10 0x100e8d8d
 void MxBackgroundAudioManager::FadeInOrFadeOut()
 {
 	MxS32 volume, compare;
@@ -176,12 +179,10 @@ void MxBackgroundAudioManager::FadeInOrFadeOut()
 		}
 
 		if (volume < compare) {
-			volume = Min(volume + m_speed, compare);
-			m_unk0xa0->SetVolume(volume);
+			m_unk0xa0->SetVolume(volume + m_speed < compare ? volume + m_speed : compare);
 		}
 		else if (compare < volume) {
-			volume = Max(volume - m_speed, compare);
-			m_unk0xa0->SetVolume(volume);
+			m_unk0xa0->SetVolume(volume - m_speed > compare ? volume - m_speed : compare);
 		}
 		else {
 			m_unk0xa0->SetVolume(volume);
@@ -260,7 +261,7 @@ MxResult MxBackgroundAudioManager::PlayMusic(
 
 		m_action2.SetAtomId(p_action.GetAtomId());
 		m_action2.SetObjectId(p_action.GetObjectId());
-		m_action2.SetUnknown84(this);
+		m_action2.SetNotificationObject(this);
 		m_action2.SetOrigin(this);
 
 		MxResult result = Start(&m_action2);
@@ -317,6 +318,7 @@ void MxBackgroundAudioManager::LowerVolume()
 }
 
 // FUNCTION: LEGO1 0x1007f5b0
+// FUNCTION: BETA10 0x100e9543
 void MxBackgroundAudioManager::RaiseVolume()
 {
 	if (m_unk0x148 != 0) {

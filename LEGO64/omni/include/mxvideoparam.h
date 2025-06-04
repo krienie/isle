@@ -1,22 +1,24 @@
 #ifndef MXVIDEOPARAM_H
 #define MXVIDEOPARAM_H
 
-#include "mxrect32.h"
+#include "compat.h"
+#include "mxgeometry.h"
 #include "mxtypes.h"
 #include "mxvideoparamflags.h"
 
-#include <SDL_video.h>
+#include <ddraw.h>
 
 class MxPalette;
 
-//TODO(KL): Just change this to a struct...
+// SIZE 0x24
 class MxVideoParam {
 public:
 	MxVideoParam();
-	MxVideoParam(MxRect32& p_rect, MxPalette* p_palette, MxULong p_backBuffers, MxVideoParamFlags& p_flags);
+	__declspec(dllexport)
+		MxVideoParam(MxRect32& p_rect, MxPalette* p_palette, MxULong p_backBuffers, MxVideoParamFlags& p_flags);
 	MxVideoParam(MxVideoParam& p_videoParam);
 	~MxVideoParam();
-	void SetDeviceName(const char* p_deviceId);
+	void SetDeviceName(char* p_deviceId);
 	MxVideoParam& operator=(const MxVideoParam& p_videoParam);
 
 	// FUNCTION: BETA10 0x100886e0
@@ -40,11 +42,7 @@ public:
 	// FUNCTION: BETA10 0x10141fe0
 	void SetBackBuffers(MxU32 p_backBuffers) { m_backBuffers = p_backBuffers; }
 
-	void SetWindowHandle(SDL_Window* p_windowHandle) { m_windowHandle = p_windowHandle; }
-	SDL_Window* GetSDLWindowHandle() const { return m_windowHandle; }
-
 private:
-	SDL_Window* m_windowHandle;
 	MxRect32 m_rect;           // 0x00
 	MxPalette* m_palette;      // 0x10
 	MxU32 m_backBuffers;       // 0x14

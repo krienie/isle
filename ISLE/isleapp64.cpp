@@ -2,17 +2,17 @@
 
 #define SDL_MAIN_HANDLED
 
-//#include "3dmanager/lego3dmanager.h"
-//#include "legoanimationmanager.h"
-//#include "legobuildingmanager.h"
-//#include "legogamestate.h"
-//#include "legoinputmanager.h"
+#include "3dmanager/lego3dmanager.h"
+#include "legoanimationmanager.h"
+#include "legobuildingmanager.h"
+#include "legogamestate.h"
+#include "legoinputmanager.h"
 #include "legomain.h"
-//#include "legomodelpresenter.h"
-//#include "legopartpresenter.h"
-//#include "legoutils.h"
-#include "video/legovideomanager.h"
-//#include "legoworldpresenter.h"
+#include "legomodelpresenter.h"
+#include "legopartpresenter.h"
+#include "legoutils.h"
+#include "legovideomanager.h"
+#include "legoworldpresenter.h"
 #include "misc.h"
 #include "mxbackgroundaudiomanager.h"
 //#include "mxdirectx/mxdirect3d.h"
@@ -25,8 +25,8 @@
 #include "mxtimer.h"
 #include "mxtransitionmanager.h"
 #include "mxvariabletable.h"
-//#include "roi/legoroi.h"
-//#include "viewmanager/viewmanager.h"
+#include "roi/legoroi.h"
+#include "viewmanager/viewmanager.h"
 
 #include <inifile-cpp/inicpp.h>
 
@@ -165,27 +165,27 @@ void IsleApp::Close()
 	MxDSAction ds;
 	ds.SetUnknown24(-2);
 	
-	//if (Lego()) {
-	//	GameState()->Save(0);
-	//	if (InputManager()) {
-	//		InputManager()->QueueEvent(c_notificationKeyPress, 0, 0, 0, VK_SPACE);
-	//	}
-	//
-	//	VideoManager()->Get3DManager()->GetLego3DView()->GetViewManager()->RemoveAll(NULL);
-	//
-	//	Lego()->RemoveWorld(ds.GetAtomId(), ds.GetObjectId());
-	//	Lego()->DeleteObject(ds);
-	//	TransitionManager()->SetWaitIndicator(NULL);
-	//	Lego()->Resume();
-	//
-	//	while (Streamer()->Close(NULL) == SUCCESS) {
-	//	}
-	//
-	//	while (Lego() && !Lego()->DoesEntityExist(ds)) {
-	//		Timer()->GetRealTime();
-	//		TickleManager()->Tickle();
-	//	}
-	//}
+	if (Lego()) {
+		GameState()->Save(0);
+		if (InputManager()) {
+			InputManager()->QueueEvent(c_notificationKeyPress, 0, 0, 0, VK_SPACE);
+		}
+	
+		VideoManager()->Get3DManager()->GetLego3DView()->GetViewManager()->RemoveAll(NULL);
+	
+		Lego()->RemoveWorld(ds.GetAtomId(), ds.GetObjectId());
+		Lego()->DeleteObject(ds);
+		TransitionManager()->SetWaitIndicator(NULL);
+		Lego()->Resume();
+	
+		while (Streamer()->Close(NULL) == SUCCESS) {
+		}
+	
+		while (Lego() && !Lego()->DoesEntityExist(ds)) {
+			Timer()->GetRealTime();
+			TickleManager()->Tickle();
+		}
+	}
 }
 
 // FUNCTION: ISLE 0x4013b0
@@ -207,11 +207,11 @@ BOOL IsleApp::SetupLegoOmni()
 		) == FAILURE;
 #endif
 
-	//if (!failure) {
-	//	VariableTable()->SetVariable("ACTOR_01", "");
-	//	TickleManager()->SetClientTickleInterval(VideoManager(), 10);
-	//	result = TRUE;
-	//}
+	if (!failure) {
+		VariableTable()->SetVariable("ACTOR_01", "");
+		TickleManager()->SetClientTickleInterval(VideoManager(), 10);
+		result = TRUE;
+	}
 
 	//TODO(KL): temporary
 	return failure ? FAILURE : SUCCESS;
@@ -233,7 +233,7 @@ void IsleApp::SetupVideoFlags(
 	m_videoParam.Flags().SetFullScreen(fullScreen);
 	m_videoParam.Flags().SetFlipSurfaces(flipSurfaces);
 	m_videoParam.Flags().SetBackBuffers(!backBuffers);
-	m_videoParam.Flags().SetF2bit0(!param_6);
+	m_videoParam.Flags().SetLacksLightSupport(!param_6);
 	m_videoParam.Flags().SetF1bit7(param_7);
 	m_videoParam.Flags().SetWideViewAngle(wideViewAngle);
 	m_videoParam.Flags().SetF2bit1(1);
