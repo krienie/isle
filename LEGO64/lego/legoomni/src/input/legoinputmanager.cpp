@@ -341,7 +341,7 @@ void LegoInputManager::ClearWorld()
 }
 
 // FUNCTION: LEGO1 0x1005c740
-void LegoInputManager::QueueEvent(NotificationId p_id, MxU8 p_modifier, MxLong p_x, MxLong p_y, MxU8 p_key)
+void LegoInputManager::QueueEvent(NotificationId p_id, Uint16 p_modifier, MxLong p_x, MxLong p_y, SDL_Scancode p_key)
 {
 	LegoEventNotificationParam param = LegoEventNotificationParam(p_id, NULL, p_modifier, p_x, p_y, p_key);
 

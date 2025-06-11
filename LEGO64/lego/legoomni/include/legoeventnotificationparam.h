@@ -4,6 +4,7 @@
 #include "mxnotificationparam.h"
 #include "mxtypes.h"
 
+#include <SDL_keycode.h>
 #include <stdlib.h>
 
 class LegoROI;
@@ -32,18 +33,18 @@ public:
 	LegoEventNotificationParam(
 		NotificationId p_type,
 		MxCore* p_sender,
-		MxU8 p_modifier,
+		MxU16 p_modifier,
 		MxS32 p_x,
 		MxS32 p_y,
-		MxU8 p_key
+		SDL_Scancode p_key
 	)
 		: MxNotificationParam(p_type, p_sender), m_modifier(p_modifier), m_x(p_x), m_y(p_y), m_key(p_key), m_roi(NULL)
 	{
 	}
 
 	LegoROI* GetROI() { return m_roi; }
-	MxU8 GetModifier() { return m_modifier; }
-	MxU8 GetKey() const { return m_key; }
+	MxU16 GetModifier() { return m_modifier; }
+	SDL_Scancode GetKey() const { return m_key; }
 
 	// FUNCTION: LEGO1 0x10012190
 	// FUNCTION: BETA10 0x10024210
@@ -56,10 +57,10 @@ public:
 	void SetROI(LegoROI* p_roi) { m_roi = p_roi; }
 
 	// FUNCTION: BETA10 0x1007d620
-	void SetModifier(MxU8 p_modifier) { m_modifier = p_modifier; }
+	void SetModifier(MxU16 p_modifier) { m_modifier = p_modifier; }
 
 	// FUNCTION: BETA10 0x1007d6b0
-	void SetKey(MxU8 p_key) { m_key = p_key; }
+	void SetKey(SDL_Scancode p_key) { m_key = p_key; }
 
 	// FUNCTION: BETA10 0x1007d650
 	void SetX(MxS32 p_x) { m_x = p_x; }
@@ -68,10 +69,10 @@ public:
 	void SetY(MxS32 p_y) { m_y = p_y; }
 
 protected:
-	MxU8 m_modifier; // 0x0c
+	MxU16 m_modifier; // 0x0c
 	MxS32 m_x;       // 0x10
 	MxS32 m_y;       // 0x14
-	MxU8 m_key;      // 0x18
+	SDL_Scancode m_key;      // 0x18
 	LegoROI* m_roi;  // 0x1c
 };
 

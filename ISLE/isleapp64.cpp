@@ -168,7 +168,7 @@ void IsleApp::Close()
 	if (Lego()) {
 		GameState()->Save(0);
 		if (InputManager()) {
-			InputManager()->QueueEvent(c_notificationKeyPress, 0, 0, 0, VK_SPACE);
+			InputManager()->QueueEvent(c_notificationKeyPress, 0, 0, 0, SDL_SCANCODE_SPACE);
 		}
 	
 		VideoManager()->Get3DManager()->GetLego3DView()->GetViewManager()->RemoveAll(NULL);
@@ -313,24 +313,88 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	while (!g_closed)
 	{
+		NotificationId type = c_notificationType0;
+		SDL_Scancode keyCode = SDL_SCANCODE_UNKNOWN;
+		Uint16 keyModifier = KMOD_NONE;
+		MxLong MouseX = 0;
+		MxLong MouseY = 0;
+
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
 			switch(event.type)
 			{
-
 			case SDL_QUIT:
-				g_closed = true;
+				if (!g_closed && g_isle)
+				{
+					delete g_isle;
+					g_isle = nullptr;
+					g_closed = TRUE;
+					return 0;
+				}
 				break;
-
+			case SDL_KEYDOWN:
+				type = c_notificationKeyPress;
+				keyCode = event.key.keysym.scancode;
+				keyModifier = event.key.keysym.mod;
+				break;
+			case SDL_MOUSEMOTION:
+				g_mousemoved = 1;
+				type = c_notificationMouseMove;
+				MouseX = event.motion.x;
+				MouseY = event.motion.y;
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				g_mousedown = 1;
+				type = c_notificationButtonDown;
+				MouseX = event.motion.x;
+				MouseY = event.motion.y;
+				break;
+			case SDL_MOUSEBUTTONUP:
+				g_mousedown = 0;
+				type = c_notificationButtonUp;
+				MouseX = event.motion.x;
+				MouseY = event.motion.y;
+				break;
+			case SDL_WINDOWEVENT:
+				//TODO(KL): Handle window events
+				break;
 			default:
 				// Do nothing.
 				break;
 			}
 		}
 
-		SDL_Delay(10);
+		if (g_isle)
+		{
+			if (InputManager())
+			{
+				InputManager()->QueueEvent(type, keyModifier, MouseX, MouseY, keyCode);
+			}
+
+			if (g_isle && g_isle->GetDrawCursor() && type == c_notificationMouseMove)
+			{
+				if (MouseX >= 640)
+				{
+					MouseX = 639;
+				}
+				if (MouseY >= 480)
+				{
+					MouseY = 479;
+				}
+				VideoManager()->MoveCursor(MouseX, MouseY);
+			}
+		}
+
+		if (g_isle)
+		{
+			g_isle->Tick(0);
+		}
+
+		//SDL_Delay(10);
 	}
+
+	//TODO(KL): handle WM_ISLE_SETCURSOR
 
 	//MSG msg;
 	//
@@ -832,13 +896,13 @@ void IsleApp::LoadConfig()
 inline void IsleApp::Tick(BOOL sleepIfNotNextFrame)
 {
 	// GLOBAL: ISLE 0x4101c0
-	/*static MxLong g_lastFrameTime = 0;
+	static MxLong g_lastFrameTime = 0;
 
 	// GLOBAL: ISLE 0x4101bc
 	static int g_startupDelay = 200;
 
 	if (!m_windowActive) {
-		Sleep(0);
+		SDL_Delay(0);
 		return;
 	}
 
@@ -904,6 +968,6 @@ inline void IsleApp::Tick(BOOL sleepIfNotNextFrame)
 		}
 	}
 	else if (sleepIfNotNextFrame != 0) {
-		Sleep(0);
-	}*/
+		SDL_Delay(0);
+	}
 }

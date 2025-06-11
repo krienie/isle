@@ -7,6 +7,8 @@
 #include "mxpresenter.h"
 #include "mxqueue.h"
 
+#include <SDL_keycode.h>
+#include <SDL_scancode.h>
 #include <dinput.h>
 
 class LegoCameraController;
@@ -83,7 +85,7 @@ public:
 	LegoInputManager();
 	~LegoInputManager() override;
 
-	void QueueEvent(NotificationId p_id, MxU8 p_modifier, MxLong p_x, MxLong p_y, MxU8 p_key);
+	void QueueEvent(NotificationId p_id, Uint16 p_modifier, MxLong p_x, MxLong p_y, SDL_Scancode p_key);
 	void Register(MxCore*);
 	void UnRegister(MxCore*);
 

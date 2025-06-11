@@ -125,31 +125,38 @@ function(add_lego_libraries NAME)
 
   set(SUFFIX "${ARG_SUFFIX}")
   
+  if (BUILD_FOR_MODERN_OS)
+    set(legoRootDirName LEGO64)
+  else()
+    set(legoRootDirName LEGO1)
+  endif()
+
+  
   file(GLOB_RECURSE tglrlSrc
-        "LEGO1/tgl/*.cpp"
-        "LEGO1/tgl/*.h")
+        "${legoRootDirName}/tgl/*.cpp"
+        "${legoRootDirName}/tgl/*.h")
   add_library(tglrl${ARG_SUFFIX} STATIC ${tglrlSrc})
   list(APPEND list_targets tglrl${ARG_SUFFIX})
   set_property(TARGET tglrl${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "tglrl40$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(tglrl${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(tglrl${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(tglrl${ARG_SUFFIX} PRIVATE d3drm)
 
   file(GLOB_RECURSE realtimeSrc
-        "LEGO1/realtime/*.cpp"
-        "LEGO1/realtime/*.h")
+        "${legoRootDirName}/realtime/*.cpp"
+        "${legoRootDirName}/realtime/*.h")
   add_library(realtime${ARG_SUFFIX} STATIC ${realtimeSrc})
   list(APPEND list_targets realtime${ARG_SUFFIX})
   set_property(TARGET realtime${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "realtime$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(realtime${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(realtime${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(realtime${ARG_SUFFIX} PRIVATE Vec::Vec)
 
   file(GLOB_RECURSE viewmanagerSrc
-        "LEGO1/viewmanager/*.cpp"
-        "LEGO1/viewmanager/*.h")
+        "${legoRootDirName}/viewmanager/*.cpp"
+        "${legoRootDirName}/viewmanager/*.h")
   add_library(viewmanager${ARG_SUFFIX} STATIC ${viewmanagerSrc})
   list(APPEND list_targets viewmanager${ARG_SUFFIX})
   set_property(TARGET viewmanager${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "viewmanager$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(viewmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(viewmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(viewmanager${ARG_SUFFIX} PRIVATE Vec::Vec)
   
   if (BUILD_FOR_MODERN_OS)
@@ -164,98 +171,98 @@ function(add_lego_libraries NAME)
     target_link_libraries(mxvulkan${ARG_SUFFIX} PRIVATE Vulkan-1)
   else()
     file(GLOB_RECURSE mxdirectxSrc
-          "LEGO1/mxdirectx/*.cpp"
-          "LEGO1/mxdirectx/*.h")
+          "${legoRootDirName}/mxdirectx/*.cpp"
+          "${legoRootDirName}/mxdirectx/*.h")
     add_library(mxdirectx${ARG_SUFFIX} STATIC ${mxdirectxSrc})
     list(APPEND list_targets mxdirectx${ARG_SUFFIX})
     set_property(TARGET mxdirectx${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "MxDirectX$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-    target_include_directories(mxdirectx${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+    target_include_directories(mxdirectx${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/util")
     target_link_libraries(mxdirectx${ARG_SUFFIX} PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:ddraw>)
   endif()
 
   file(GLOB_RECURSE roiSrc
-        "LEGO1/lego/sources/roi/*.cpp"
-        "LEGO1/lego/sources/roi/*.h")
+        "${legoRootDirName}/lego/sources/roi/*.cpp"
+        "${legoRootDirName}/lego/sources/roi/*.h")
   add_library(roi${ARG_SUFFIX} STATIC ${roiSrc})
   list(APPEND list_targets roi${ARG_SUFFIX})
   set_property(TARGET roi${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "roi$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(roi${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(roi${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/include" "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/sources" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(roi${ARG_SUFFIX} PRIVATE viewmanager${ARG_SUFFIX} Vec::Vec)
 
   file(GLOB_RECURSE geomSrc
-        "LEGO1/lego/sources/geom/*.cpp"
-        "LEGO1/lego/sources/geom/*.h")
+        "${legoRootDirName}/lego/sources/geom/*.cpp"
+        "${legoRootDirName}/lego/sources/geom/*.h")
   add_library(geom${ARG_SUFFIX} STATIC ${geomSrc})
   list(APPEND list_targets geom${ARG_SUFFIX})
   set_property(TARGET geom${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "geom$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(geom${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(geom${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/include" "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/sources" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(geom${ARG_SUFFIX} PRIVATE)
 
   file(GLOB_RECURSE shapeSrc
-        "LEGO1/lego/sources/shape/*.cpp"
-        "LEGO1/lego/sources/shape/*.h")
+        "${legoRootDirName}/lego/sources/shape/*.cpp"
+        "${legoRootDirName}/lego/sources/shape/*.h")
   add_library(shape${ARG_SUFFIX} STATIC ${shapeSrc})
   list(APPEND list_targets shape${ARG_SUFFIX})
   set_property(TARGET shape${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "shape$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(shape${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(shape${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/include" "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/sources" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(shape${ARG_SUFFIX} PRIVATE)
 
   file(GLOB_RECURSE animSrc
-        "LEGO1/lego/sources/anim/*.cpp"
-        "LEGO1/lego/sources/anim/*.h")
+        "${legoRootDirName}/lego/sources/anim/*.cpp"
+        "${legoRootDirName}/lego/sources/anim/*.h")
   add_library(anim${ARG_SUFFIX} STATIC ${animSrc})
   list(APPEND list_targets anim${ARG_SUFFIX})
   set_property(TARGET anim${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "anim$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(anim${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(anim${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/include" "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/sources" "${PROJECT_SOURCE_DIR}/util")
 
   file(GLOB_RECURSE miscSrc
-        "LEGO1/lego/sources/misc/*.cpp"
-        "LEGO1/lego/sources/misc/*.h")
+        "${legoRootDirName}/lego/sources/misc/*.cpp"
+        "${legoRootDirName}/lego/sources/misc/*.h")
   add_library(misc${ARG_SUFFIX} STATIC ${miscSrc})
   list(APPEND list_targets misc${ARG_SUFFIX})
   set_property(TARGET misc${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "misc$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(misc${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(misc${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/include" "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/sources" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(misc${ARG_SUFFIX} PRIVATE)
 
   file(GLOB_RECURSE 3dmanagerSrc
-        "LEGO1/lego/sources/3dmanager/*.cpp"
-        "LEGO1/lego/sources/3dmanager/*.h")
+        "${legoRootDirName}/lego/sources/3dmanager/*.cpp"
+        "${legoRootDirName}/lego/sources/3dmanager/*.h")
   add_library(3dmanager${ARG_SUFFIX} STATIC ${3dmanagerSrc})
   list(APPEND list_targets 3dmanager${ARG_SUFFIX})
   set_property(TARGET 3dmanager${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "3dmanager$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(3dmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(3dmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(3dmanager${ARG_SUFFIX} PRIVATE Vec::Vec)
 
-  file(GLOB_RECURSE omniSrc "LEGO1/omni/*.cpp")
-  file(GLOB_RECURSE omniInc "LEGO1/omni/*.h")
+  file(GLOB_RECURSE omniSrc "${legoRootDirName}/omni/*.cpp")
+  file(GLOB_RECURSE omniInc "${legoRootDirName}/omni/*.h")
   add_library(omni${ARG_SUFFIX} STATIC ${omniSrc} ${omniInc})
   list(APPEND list_targets omni${ARG_SUFFIX})
   set_property(TARGET omni${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "omni$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(omni${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
+  target_include_directories(omni${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/include" "${PROJECT_SOURCE_DIR}/${legoRootDirName}" "${PROJECT_SOURCE_DIR}/util")
   target_link_libraries(omni${ARG_SUFFIX} PRIVATE dsound winmm Smacker::Smacker)
   if(MSVC)
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/omni/src" PREFIX "Source Files" FILES ${omniSrc})
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/omni/include" PREFIX "Header Files" FILES ${omniInc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/src" PREFIX "Source Files" FILES ${omniSrc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/include" PREFIX "Header Files" FILES ${omniInc})
   else()
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/omni" FILES ${omniSrc} ${omniInc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni" FILES ${omniSrc} ${omniInc})
   endif()
 
-  file(GLOB_RECURSE legoSrc "LEGO1/lego/legoomni/*.cpp")
-  file(GLOB_RECURSE legoInc "LEGO1/lego/legoomni/*.h")
+  file(GLOB_RECURSE legoSrc "${legoRootDirName}/lego/legoomni/*.cpp")
+  file(GLOB_RECURSE legoInc "${legoRootDirName}/lego/legoomni/*.h")
   set(legoAdditionalSrc
-    LEGO1/main.cpp
-    LEGO1/modeldb/modeldb.cpp
-    LEGO1/modeldb/modeldb.h
-    LEGO1/define.cpp
-    LEGO1/define.h)
+    ${legoRootDirName}/main.cpp
+    ${legoRootDirName}/modeldb/modeldb.cpp
+    ${legoRootDirName}/modeldb/modeldb.h
+    ${legoRootDirName}/define.cpp
+    ${legoRootDirName}/define.h)
   add_library(${NAME} SHARED ${legoSrc} ${legoInc} ${legoAdditionalSrc})
   list(APPEND list_targets ${NAME})
   
   if(MSVC)
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/lego/legoomni/src" PREFIX "Source Files" FILES ${legoSrc})
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/lego/legoomni/include" PREFIX "Header Files" FILES ${legoInc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/legoomni/src" PREFIX "Source Files" FILES ${legoSrc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/legoomni/include" PREFIX "Header Files" FILES ${legoInc})
   else()
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO1/lego/legoomni" FILES ${omniSrc} ${omniInc})
+    source_group(TREE "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/legoomni" FILES ${omniSrc} ${omniInc})
   endif()
 
   if (MINGW)
@@ -263,17 +270,17 @@ function(add_lego_libraries NAME)
   endif()
 
   if (MSVC)
-    target_sources(${NAME} PRIVATE LEGO1/LegoOmni.def)
+    target_sources(${NAME} PRIVATE ${legoRootDirName}/LegoOmni.def)
   else()
-    target_sources(${NAME} PRIVATE LEGO1/LegoOmni.mingw.def)
+    target_sources(${NAME} PRIVATE ${legoRootDirName}/LegoOmni.mingw.def)
   endif()
 
   target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/util")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO1")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO1/omni/include")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO1/lego/sources")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO1/lego/legoomni/include")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO1/lego/legoomni/include/actions")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/${legoRootDirName}")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/${legoRootDirName}/omni/include")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/sources")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/legoomni/include")
+  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/${legoRootDirName}/lego/legoomni/include/actions")
 
   # Link libraries
   target_link_libraries(${NAME} PRIVATE
@@ -316,114 +323,7 @@ function(add_lego_libraries NAME)
   set_property(TARGET ${NAME} PROPERTY PREFIX "${ARG_DLL_PREFIX}")
   set_property(TARGET ${NAME} PROPERTY SUFFIX "${ARG_DLL_SUFFIX}")
 
-  set(${ARG_OUT_TARGETS} ${list_targets} PARENT_SCOPE)
-endfunction()
-
-function(add_lego64_libraries NAME)
-  cmake_parse_arguments(ARG "" "SUFFIX;OUT_TARGETS;DLL_OUTPUT_NAME;DLL_PREFIX;DLL_SUFFIX" "LINK_LIBRARIES" ${ARGN})
-
-  set(list_targets )
-
-  set(SUFFIX "${ARG_SUFFIX}")
-  
-  file(GLOB_RECURSE tglrlSrc
-        "LEGO1/tgl/*.cpp"
-        "LEGO1/tgl/*.h")
-  add_library(tglrl STATIC ${tglrlSrc})
-  list(APPEND list_targets tglrl)
-  set_property(TARGET tglrl PROPERTY ARCHIVE_OUTPUT_NAME "tglrl40$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(tglrl PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
-  target_link_libraries(tglrl PRIVATE d3drm)
-
-  file(GLOB_RECURSE mxvulkanSrc
-        "LEGO64/mxvulkan/*.cpp"
-        "LEGO64/mxvulkan/*.h")
-  add_library(mxvulkan STATIC ${mxvulkanSrc})
-  list(APPEND list_targets mxvulkan)
-  set_property(TARGET mxvulkan PROPERTY ARCHIVE_OUTPUT_NAME "MxVulkan$<$<CONFIG:Debug>:d>")
-  target_include_directories(mxvulkan PRIVATE "${PROJECT_SOURCE_DIR}/LEGO64" "${PROJECT_SOURCE_DIR}/util")
-  target_include_directories(mxvulkan PRIVATE ${Vulkan_INCLUDE_DIRS})
-  target_link_libraries(mxvulkan PRIVATE Vulkan-1)
-
-  file(GLOB_RECURSE realtimeSrc
-      "LEGO1/realtime/*.cpp"
-      "LEGO1/realtime/*.h")
-  add_library(realtime${ARG_SUFFIX} STATIC ${realtimeSrc})
-  list(APPEND list_targets realtime${ARG_SUFFIX})
-  set_property(TARGET realtime${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "realtime$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(realtime${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
-  target_link_libraries(realtime${ARG_SUFFIX} PRIVATE Vec::Vec)
-  
-  file(GLOB_RECURSE viewmanagerSrc
-        "LEGO1/viewmanager/*.cpp"
-        "LEGO1/viewmanager/*.h")
-  add_library(viewmanager${ARG_SUFFIX} STATIC ${viewmanagerSrc})
-  list(APPEND list_targets viewmanager${ARG_SUFFIX})
-  set_property(TARGET viewmanager${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "viewmanager$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(viewmanager${ARG_SUFFIX} PRIVATE "${PROJECT_SOURCE_DIR}/LEGO1" "${PROJECT_SOURCE_DIR}/util")
-  target_link_libraries(viewmanager${ARG_SUFFIX} PRIVATE Vec::Vec)
-
-  file(GLOB_RECURSE omniSrc "LEGO64/omni/*.cpp")
-  file(GLOB_RECURSE omniInc "LEGO64/omni/*.h")
-  add_library(omni${ARG_SUFFIX} STATIC ${omniSrc} ${omniInc})
-  list(APPEND list_targets omni${ARG_SUFFIX})
-  set_property(TARGET omni${ARG_SUFFIX} PROPERTY ARCHIVE_OUTPUT_NAME "omni$<$<CONFIG:Debug>:d>${ARG_SUFFIX}")
-  target_include_directories(omni${ARG_SUFFIX} PRIVATE
-    "${PROJECT_SOURCE_DIR}/LEGO64/omni/include"
-    "${PROJECT_SOURCE_DIR}/LEGO64"
-    "${PROJECT_SOURCE_DIR}/util")
-  target_link_libraries(omni${ARG_SUFFIX} PRIVATE dsound winmm)
-  if(MSVC)
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/omni/src" PREFIX "Source Files" FILES ${omniSrc})
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/omni/include" PREFIX "Header Files" FILES ${omniInc})
-  else()
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/omni" FILES ${omniSrc} ${omniInc})
-  endif()
-
-  file(GLOB_RECURSE legoSrc "LEGO64/lego/legoomni/*.cpp")
-  file(GLOB_RECURSE legoInc "LEGO64/lego/legoomni/*.h")
-  set(legoAdditionalSrc
-    LEGO64/main.cpp
-    LEGO64/modeldb/modeldb.cpp
-    LEGO64/modeldb/modeldb.h
-    LEGO64/define.cpp
-    LEGO64/define.h)
-  add_library(${NAME} STATIC ${legoSrc} ${legoInc} ${legoAdditionalSrc})
-  list(APPEND list_targets ${NAME})
-  
-  if(MSVC)
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/src" PREFIX "Source Files" FILES ${legoSrc})
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/include" PREFIX "Header Files" FILES ${legoInc})
-  else()
-    source_group(TREE "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni" FILES ${omniSrc} ${omniInc})
-  endif()
-
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/util")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/omni/include")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/sources")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/include")
-  target_include_directories(${NAME} PUBLIC "${PROJECT_SOURCE_DIR}/LEGO64/lego/legoomni/include/actions")
-
-  # Link libraries
-  target_link_libraries(${NAME} PRIVATE
-    realtime${ARG_SUFFIX}
-    omni${ARG_SUFFIX}
-    Vec::Vec
-    mxvulkan
-  )
-
-  foreach(tgt IN LISTS list_targets)
-    target_include_directories(${tgt} PRIVATE ${SDL2_INCLUDE_DIRS})
-    target_link_libraries(${tgt} PRIVATE ${ARG_LINK_LIBRARIES})
-    target_compile_definitions(${tgt} PRIVATE BUILD_FOR_MODERN_OS NOMINMAX)
-    install(TARGETS ${tgt} DESTINATION .)
-  endforeach()
-
-  # Make sure filenames are ALL CAPS
-  set_property(TARGET ${NAME} PROPERTY OUTPUT_NAME "${ARG_DLL_OUTPUT_NAME}")
-  set_property(TARGET ${NAME} PROPERTY PREFIX "${ARG_DLL_PREFIX}")
-  set_property(TARGET ${NAME} PROPERTY SUFFIX "${ARG_DLL_SUFFIX}")
+  set(rootDirName )
 
   set(${ARG_OUT_TARGETS} ${list_targets} PARENT_SCOPE)
 endfunction()
